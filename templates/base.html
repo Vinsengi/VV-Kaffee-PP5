@@ -30,7 +30,7 @@
           <img src="{% static 'branding/logo.png' %}" alt="VV Kaffee" width="28" height="28" class="rounded">
           <span class="fw-semibold">Home</span>
         </a>
-         <!-- Navbar toggler for mobile -->
+        <!-- Navbar toggler for mobile -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -38,37 +38,36 @@
           <ul class="navbar-nav me-auto">
             <li class="nav-item"><a class="nav-link" href="{% url 'products:product_list' %}">Shop</a></li>
           </ul>
-         
-            <ul class="navbar-nav align-items-lg-center gap-lg-2">
-              {% if user.is_authenticated %}
-                <li class="nav-item dropdown d-flex align-items-center gap-2">
-                  {% if user.profile and user.profile.image %}
-                    <img src="{{ user.profile.image.url }}" alt="Profile image" class="rounded-circle" style="width:32px;height:32px;object-fit:cover;">
-                  {% endif %}
-                  <a class="nav-link dropdown-toggle" href="#" id="accountMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    {{ user.username|default:user.email }}
-                  </a>
-                  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountMenu">
-                    <li><a class="dropdown-item" href="{% url 'profiles:account_dashboard' %}">My Account</a></li>
-                    <li><a class="dropdown-item" href="{% url 'profiles:profile_edit' %}">Profile</a></li>
-                    {% if user|has_group:"Fulfillment Department" %}
-                      <li><hr class="dropdown-divider"></li>
-                      <li><a class="dropdown-item" href="{% url 'orders:fulfillment_paid_orders' %}">Fulfillment</a></li>
-                    {% endif %}
+
+          <ul class="navbar-nav align-items-lg-center gap-lg-2 ms-auto">
+            {% if user.is_authenticated %}
+              <li class="nav-item dropdown d-flex align-items-center gap-2">
+                {% if user.profile and user.profile.image %}
+                  <img src="{{ user.profile.image.url }}" alt="Profile image" class="rounded-circle" style="width:32px;height:32px;object-fit:cover;">
+                {% endif %}
+                <a class="nav-link dropdown-toggle" href="#" id="accountMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  {{ user.username|default:user.email }}
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountMenu">
+                  <li><a class="dropdown-item" href="{% url 'profiles:account_dashboard' %}">My Account</a></li>
+                  <li><a class="dropdown-item" href="{% url 'profiles:profile_edit' %}">Profile</a></li>
+                  {% if user|has_group:"Fulfillment Department" %}
                     <li><hr class="dropdown-divider"></li>
-                    <li>
-                      <form method="post" action="{% url 'account_logout' %}" class="px-3 py-1">
-                        {% csrf_token %}
-                        <button class="btn btn-link p-0 text-danger" type="submit">Logout</button>
-                      </form>
-                    </li>
-                  </ul>
-                </li>
-              {% else %}
-                <li class="nav-item"><a class="nav-link" href="{% url 'account_login' %}">Login</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'account_signup' %}">Register</a></li>
-              {% endif %}
-            </ul>
+                    <li><a class="dropdown-item" href="{% url 'orders:fulfillment_paid_orders' %}">Fulfillment</a></li>
+                  {% endif %}
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <form method="post" action="{% url 'account_logout' %}" class="px-3 py-1">
+                      {% csrf_token %}
+                      <button class="btn btn-link p-0 text-danger" type="submit">Logout</button>
+                    </form>
+                  </li>
+                </ul>
+              </li>
+            {% else %}
+              <li class="nav-item"><a class="nav-link" href="{% url 'account_login' %}">Login</a></li>
+              <li class="nav-item"><a class="nav-link" href="{% url 'account_signup' %}">Register</a></li>
+            {% endif %}
             <li class="nav-item">
               <a class="btn btn-dark position-relative" href="{% url 'cart:detail' %}">
                 Cart

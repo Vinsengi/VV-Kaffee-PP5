@@ -464,6 +464,22 @@ class OrderTestCase(TestCase):
 
 Use `unittest.mock` or `pytest-django` to simulate image uploads if needed.
 
+### 🧹 Linting
+
+Install the project linters (development dependency):
+
+```bash
+python -m pip install flake8
+```
+
+Run style checks across the Django apps:
+
+```bash
+flake8 cart newsletter orders products profiles reviews versohnung_und_vergebung_kaffee
+```
+
+Lint configuration lives in `.flake8` at the project root. Migrations and virtual environments are excluded from checks.
+
 ---
 
 ## 🧰 Deployment Notes

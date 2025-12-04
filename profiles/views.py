@@ -103,8 +103,10 @@ def order_detail(request, order_id: int):
 @login_required
 def post_login_redirect(request):
     # If the user is fulfillment staff, always send them to the staff screen
-    if (request.user.groups.filter(name="Fulfillment Department").exists()
-            or request.user.has_perm("orders.view_fulfillment")):
+    if (
+        request.user.groups.filter(name="Fulfillment Department").exists()
+        or request.user.has_perm("orders.view_fulfillment")
+    ):
         return redirect("orders:fulfillment_paid_orders")
     # Otherwise, to their customer account dashboard
     return redirect("profiles:account_dashboard")
