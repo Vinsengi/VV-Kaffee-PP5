@@ -1,0 +1,4 @@
+User-agent: *
+Disallow:
+
+Sitemap: https://vv-kaffee-5b7b3eb05052.herokuapp.com/sitemap.xml

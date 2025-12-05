@@ -50,6 +50,42 @@ This app is designed to help small and medium-sized businesses:
 - Allow users to order products for delivery
 
 ---
+## E-Commerce Business Model
+
+VV-Kaffee follows a **direct-to-consumer (D2C) online retail model**:
+
+- **Value Proposition**
+  - Fresh, ethically sourced Rwandan specialty coffee roasted for customers in Germany.
+  - Every purchase supports reconciliation and community development in Rwanda.
+
+- **Customer Segments**
+  - Coffee enthusiasts in Germany who care about origin and story.
+  - Ethical consumers who want their purchases to have social impact.
+  - Gift buyers looking for meaningful, story-based products.
+
+- **Revenue Streams**
+  - Online sales of coffee beans (250g and 1kg packs).
+  - Occasional limited editions and bundles.
+
+- **Channels**
+  - VV-Kaffee web shop (this project).
+  - Social media (Facebook page, Instagram) to drive traffic to the shop.
+  - Newsletter for repeat engagement.
+
+- **Key Activities**
+  - Sourcing and roasting coffee.
+  - Managing stock and online orders.
+  - Packing and shipping orders to customers.
+  - Storytelling and community updates via newsletter and social media.
+
+- **Order Lifecycle**
+  1. User browses the shop and adds products to the cart.
+  2. User checks out using Stripe (card payments).
+  3. An order record is created and marked as “paid” after Stripe confirmation.
+  4. Fulfilment workflow: the team prepares, packs and dispatches coffee.
+  5. Customer receives an email confirmation and can later re-order from their profile.
+
+---
 
 ## 🚀 Features
 
