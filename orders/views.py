@@ -43,7 +43,7 @@ from django.db.models import F
 from django.views.decorators.http import require_POST
 from datetime import timedelta
 from .emails import send_order_pending_email
-from .emails import send_order_paid_email
+from .emails import send_order_paid_notifications
 
 logger = logging.getLogger(__name__)
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -237,10 +237,7 @@ def thank_you(request, order_id: int):
                     logger.warning("Order %s reconciled to PAID on thank_you", order.id)
 
                     # ✅ send paid email here too
-                    try:
-                        send_order_paid_email(order)
-                    except Exception:
-                        logger.exception("Paid email (thank_you reconcile) failed for order %s", order.id)
+                    send_order_paid_notifications(order)
             except Exception:
                 logger.exception("Thank_you reconcile error for order %s", order.id)
 
@@ -297,10 +294,7 @@ def stripe_webhook(request):
             order.save(update_fields=["status"])
             logger.warning("Order %s marked PAID and stock adjusted", order.id)
             
-            try:
-                send_order_paid_email(order)
-            except Exception:
-                logger.exception("Paid email failed for order %s", order.id)
+            send_order_paid_notifications(order)
 
         return HttpResponse(status=200)
 

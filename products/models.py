@@ -1,10 +1,17 @@
+"""Product catalogue models."""
+
+from decimal import Decimal
+from typing import List, Optional
+
 from django.db import models
+from django.db.models import Avg
 from django.urls import reverse
 from django.utils.text import slugify
-from decimal import Decimal
 
 
 class Category(models.Model):
+    """Simple classification for products."""
+
     name = models.CharField(max_length=80, unique=True)
     slug = models.SlugField(max_length=90, unique=True, blank=True)
 
@@ -16,12 +23,16 @@ class Category(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
+        """Populate a slug by default for friendlier URLs."""
+
         if not self.slug:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
 
 class Product(models.Model):
+    """Coffee product with provenance and merchandising details."""
+
     ROAST_CHOICES = [
         ("light", "Light Roast"),
         ("medium", "Medium Roast"),
@@ -84,17 +95,52 @@ class Product(models.Model):
             models.Index(fields=["sku"]),
         ]
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.name} ({self.weight_grams}g)"
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs) -> None:
+        """Ensure a stable slug that reflects product name and weight."""
+
         if not self.slug:
             self.slug = slugify(f"{self.name}-{self.weight_grams}")
         super().save(*args, **kwargs)
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
         return reverse("products:product_detail", kwargs={"slug": self.slug})
 
     @property
     def weight_kg(self) -> Decimal:
+        """Return weight in kilograms for display consistency."""
+
         return Decimal(self.weight_grams) / Decimal(1000)
+
+    @property
+    def is_in_stock(self) -> bool:
+        """Indicate whether the product can be purchased right now."""
+
+        return self.is_active and self.stock > 0
+
+    @property
+    def available_grind_list(self) -> List[str]:
+        """List of permitted grind keys for validation/UI assistance."""
+
+        return [choice.strip() for choice in self.available_grinds.split(",") if choice.strip()]
+
+    def average_rating(self) -> Optional[Decimal]:
+        """Average product rating rounded to 1 decimal place."""
+
+        result = self.reviews.aggregate(avg_rating=Avg("rating"))
+        avg = result.get("avg_rating")
+        if avg is None:
+            return None
+        return Decimal(str(avg)).quantize(Decimal("0.1"))
+
+    def review_count(self) -> int:
+        """Number of submitted reviews for the product."""
+
+        return self.reviews.count()
+
+    def display_price(self) -> str:
+        """Human-readable price label for admin and templates."""
+
+        return f"€{self.price:.2f}"

@@ -154,6 +154,11 @@ EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
 DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default=EMAIL_HOST_USER or "no-reply@vvk.com")
 EMAIL_TIMEOUT = 20
+ORDER_NOTIFICATION_EMAILS = config(
+    "ORDER_NOTIFICATION_EMAILS",
+    default="",
+    cast=lambda v: [e.strip() for e in v.split(",") if e.strip()],
+)
 
 # ── Auth / Allauth ────────────────────────────────────────────────────────────
 AUTHENTICATION_BACKENDS = [

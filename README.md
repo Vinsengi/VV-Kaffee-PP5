@@ -289,6 +289,8 @@ EMAIL_USE_TLS=True
 EMAIL_HOST_USER=your_email@gmail.com
 EMAIL_HOST_PASSWORD=your_app_password
 DEFAULT_FROM_EMAIL=your_email@gmail.com
+# Send internal alerts to these addresses when orders are paid (comma-separated)
+ORDER_NOTIFICATION_EMAILS=ops@example.com,team@example.com
 
 # PostgreSQL (used by Heroku)
 DATABASE_URL=postgres://user:password@host:port/dbname
