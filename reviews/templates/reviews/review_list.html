@@ -1,0 +1,34 @@
+<div class="d-flex justify-content-between align-items-center mb-2">
+  <h5 class="mb-0">Reviews ({{ review_count|default:reviews|length }})</h5>
+  {% if average_rating %}
+    <div class="badge bg-warning-subtle text-dark border">
+      ★ {{ average_rating|floatformat:1 }}/5
+    </div>
+  {% endif %}
+</div>
+
+<div class="list-group">
+  {% for review in reviews %}
+    <div class="list-group-item">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <div class="text-warning">
+            {% for i in "12345"|make_list %}
+              <span class="{% if forloop.counter <= review.rating %}text-warning{% else %}text-secondary{% endif %}">★</span>
+            {% endfor %}
+          </div>
+          <div class="fw-semibold">{{ review.title|default:"Rated this product" }}</div>
+          <div class="small text-secondary">by {{ review.user.username }} · {{ review.created_at|date:"M j, Y" }}</div>
+        </div>
+        {% if review.comment %}
+          <span class="badge bg-light text-secondary">{{ review.rating }} / 5</span>
+        {% endif %}
+      </div>
+      {% if review.comment %}
+        <p class="mb-0 mt-2">{{ review.comment|linebreaksbr }}</p>
+      {% endif %}
+    </div>
+  {% empty %}
+    <div class="list-group-item text-secondary">No reviews yet.</div>
+  {% endfor %}
+</div>

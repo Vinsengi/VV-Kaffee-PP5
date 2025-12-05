@@ -5,13 +5,22 @@
   <p class="text-secondary">Order #{{ order.id }}</p>
   <form method="post" class="row g-3">
     {% csrf_token %}
+    {% if form.non_field_errors %}
+      <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+    {% endif %}
     <div class="col-12">
       <label class="form-label">Rating</label>
       {{ form.rating }}
+      {% if form.rating.errors %}
+        <div class="text-danger small">{{ form.rating.errors }}</div>
+      {% endif %}
     </div>
     <div class="col-12">
       <label class="form-label">Comment</label>
       {{ form.comment }}
+      {% if form.comment.errors %}
+        <div class="text-danger small">{{ form.comment.errors }}</div>
+      {% endif %}
     </div>
     <div class="col-12">
       <button class="btn btn-primary">Submit</button>
