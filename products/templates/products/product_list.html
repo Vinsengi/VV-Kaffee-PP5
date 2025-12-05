@@ -23,6 +23,22 @@ Browse and order ethically sourced Rwandan coffee beans from VV-Kaffee.
               {% if p.tasting_notes %}
                 <p class="small text-secondary mb-2">{{ p.tasting_notes }}</p>
               {% endif %}
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="text-warning small">
+                  {% with avg=p.average_rating|default:0 %}
+                    {% for i in "12345"|make_list %}
+                      <span class="{% if forloop.counter <= avg %}text-warning{% else %}text-secondary{% endif %}">★</span>
+                    {% endfor %}
+                  {% endwith %}
+                </div>
+                <div class="small text-muted">
+                  {% if p.review_count and p.average_rating is not None %}
+                    {{ p.average_rating|floatformat:1 }}/5 ({{ p.review_count }})
+                  {% else %}
+                    No reviews yet
+                  {% endif %}
+                </div>
+              </div>
                <a href="{{ p.get_absolute_url }}" class="mt-auto btn btn-primary">View details</a> 
             </div>
           </div>
