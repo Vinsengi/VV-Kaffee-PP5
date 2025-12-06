@@ -1,5 +1,6 @@
 # versohnung_und_vergebung_kaffee/settings.py
 from pathlib import Path
+from email.utils import formataddr, parseaddr
 from decouple import config
 from dotenv import load_dotenv
 
@@ -152,7 +153,14 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
-DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default=EMAIL_HOST_USER or "no-reply@vvk.com")
+FROM_NAME = config("FROM_NAME", default=SITE_NAME)
+_default_from_env = config("DEFAULT_FROM_EMAIL", default="")
+_fallback_from = formataddr((FROM_NAME or "VV Kaffee", EMAIL_HOST_USER or "no-reply@vvk.com"))
+if _default_from_env:
+    parsed_name, parsed_addr = parseaddr(_default_from_env)
+    DEFAULT_FROM_EMAIL = formataddr((parsed_name or FROM_NAME or "VV Kaffee", parsed_addr or EMAIL_HOST_USER or "no-reply@vvk.com"))
+else:
+    DEFAULT_FROM_EMAIL = _fallback_from
 EMAIL_TIMEOUT = 20
 ORDER_NOTIFICATION_EMAILS = config(
     "ORDER_NOTIFICATION_EMAILS",

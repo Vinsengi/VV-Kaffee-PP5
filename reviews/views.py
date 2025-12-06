@@ -36,17 +36,15 @@ def create_or_update_review(request, product_id):
         messages.error(request, "You can only review products you have purchased.")
         return redirect(product.get_absolute_url())
 
-    instance = ProductReview.objects.filter(user=request.user, product=product).first()
-
     if request.method == "POST":
-        form = ProductReviewForm(request.POST, instance=instance)
+        form = ProductReviewForm(request.POST)
         if form.is_valid():
             review = form.save(commit=False)
             review.user = request.user
             review.product = product
             review.save()
             messages.success(request, "Thanks for sharing your review!")
-            return redirect(product.get_absolute_url())
+            return redirect(f"{product.get_absolute_url()}?review_submitted=1")
 
         detail_view = ProductDetailView()
         detail_view.request = request

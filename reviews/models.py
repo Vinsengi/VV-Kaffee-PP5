@@ -17,7 +17,6 @@ class ProductReview(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ("product", "user")  # one review per product per user
         ordering = ["-created_at"]
 
     def __str__(self) -> str:

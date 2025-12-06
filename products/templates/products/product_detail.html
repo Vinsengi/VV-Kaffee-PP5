@@ -107,8 +107,8 @@
         <div class="card-body">
           <h5 class="card-title">Leave a review</h5>
           {% if can_review %}
-            {% if existing_review %}
-              <p class="text-secondary small">Update your existing review below.</p>
+            {% if review_form_reset %}
+              <p class="text-secondary small mb-2">Thanks for your review! The form is ready if you want to add another update.</p>
             {% endif %}
             <form method="post" action="{% url 'reviews:product_review' product.id %}" class="row g-3">
               {% csrf_token %}

@@ -39,17 +39,26 @@
         <div class="collapse navbar-collapse" id="mainNavbar">
           <ul class="navbar-nav me-auto">
             <li class="nav-item"><a class="nav-link" href="{% url 'products:product_list' %}">Shop</a></li>
+            {% if user.is_authenticated %}
+              <li class="nav-item"><a class="nav-link" href="{% url 'orders:my_orders' %}">My Orders</a></li>
+              <li class="nav-item"><a class="nav-link" href="{% url 'profiles:account_dashboard' %}">My Account</a></li>
+            {% endif %}
           </ul>
 
           <ul class="navbar-nav align-items-lg-center gap-lg-2 ms-auto">
             {% if user.is_authenticated %}
               <li class="nav-item dropdown d-flex align-items-center gap-2">
-                {% if user.profile and user.profile.image %}
-                  <img src="{{ user.profile.image.url }}" alt="Profile image" class="rounded-circle" style="width:32px;height:32px;object-fit:cover;">
-                {% endif %}
+                <span class="text-light small d-none d-md-inline">Welcome,</span>
                 <a class="nav-link dropdown-toggle" href="#" id="accountMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   {{ user.username|default:user.email }}
                 </a>
+                {% if user.profile and user.profile.image %}
+                  <img src="{{ user.profile.image.url }}" alt="Profile image" class="rounded-circle border" style="width:32px;height:32px;object-fit:cover;">
+                {% else %}
+                  <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" style="width:32px;height:32px;font-size:0.85rem;">
+                    {{ user.username|slice:":1"|default:user.email|slice:":1"|upper }}
+                  </div>
+                {% endif %}
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountMenu">
                   <li><a class="dropdown-item" href="{% url 'profiles:account_dashboard' %}">My Account</a></li>
                   <li><a class="dropdown-item" href="{% url 'profiles:profile_edit' %}">Profile</a></li>

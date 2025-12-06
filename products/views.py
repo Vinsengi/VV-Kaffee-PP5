@@ -64,7 +64,7 @@ class ProductDetailView(DetailView):
 
         request = self.request
         can_review = False
-        existing_review = None
+        reset_review_form = bool(request.GET.get("review_submitted"))
 
         if request.user.is_authenticated:
             can_review = OrderItem.objects.filter(
@@ -74,20 +74,18 @@ class ProductDetailView(DetailView):
             ).exists()
             if can_review:
                 provided_form = kwargs.get("review_form")
-                existing_review = (
-                    getattr(provided_form, "instance", None)
-                    or ProductReview.objects.filter(
-                        user=request.user, product=product
-                    ).first()
-                )
-                ctx["review_form"] = provided_form or ProductReviewForm(
-                    instance=existing_review
-                )
-                ctx["existing_review"] = existing_review
+                if provided_form:
+                    ctx["review_form"] = provided_form
+                elif reset_review_form:
+                    # After a successful submit, show a fresh form instead of prefilled values.
+                    ctx["review_form"] = ProductReviewForm()
+                else:
+                    ctx["review_form"] = ProductReviewForm()
             else:
                 ctx["review_form"] = None
         else:
             ctx["review_form"] = None
 
         ctx["can_review"] = can_review
+        ctx["review_form_reset"] = reset_review_form
         return ctx
