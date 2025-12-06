@@ -15,7 +15,7 @@ from django.urls import reverse
 
 from products.models import Product
 from cart.utils import cart_from_session, compute_summary
-from .forms import CheckoutForm
+from .forms import CheckoutForm, StaffOrderForm
 from .models import Order, OrderItem
 from django.contrib.admin.views.decorators import staff_member_required
 
@@ -327,6 +327,9 @@ def is_fulfiller(user):
     return user.is_authenticated and user.groups.filter(name="Fulfillment Department").exists()
 
 
+staff_required = user_passes_test(lambda u: u.is_staff)
+
+
 @login_required
 @permission_required("orders.view_fulfillment", raise_exception=True)
 @staff_member_required
@@ -559,3 +562,57 @@ def my_order_detail(request, order_id: int):
     order = get_object_or_404(Order.objects.prefetch_related("items__product"),
                               id=order_id, user=request.user)
     return render(request, "orders/my_order_detail.html", {"order": order})
+
+@login_required
+@staff_required
+def staff_order_list(request):
+    orders = (
+        Order.objects.select_related("user")
+        .prefetch_related("items__product")
+        .order_by("-created_at")
+    )
+    return render(request, "orders/staff_order_list.html", {"orders": orders})
+
+
+@login_required
+@staff_required
+def staff_order_detail(request, pk: int):
+    order = get_object_or_404(
+        Order.objects.prefetch_related("items__product"), pk=pk
+    )
+    return render(request, "orders/staff_order_detail.html", {"order": order})
+
+
+@login_required
+@staff_required
+def staff_order_update(request, pk: int):
+    order = get_object_or_404(Order, pk=pk)
+    if request.method == "POST":
+        form = StaffOrderForm(request.POST, instance=order)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Order updated.")
+            return redirect("orders:staff_order_detail", pk=order.pk)
+    else:
+        form = StaffOrderForm(instance=order)
+
+    return render(
+        request,
+        "orders/staff_order_form.html",
+        {"form": form, "order": order},
+    )
+
+
+@login_required
+@staff_required
+def staff_order_delete(request, pk: int):
+    order = get_object_or_404(Order, pk=pk)
+    if request.method == "POST":
+        order.delete()
+        messages.success(request, "Order deleted.")
+        return redirect("orders:staff_order_list")
+    return render(
+        request,
+        "orders/staff_order_confirm_delete.html",
+        {"order": order},
+    )

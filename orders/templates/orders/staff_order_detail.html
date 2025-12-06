@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <div>
+    <h1 class="h4 mb-0">Order #{{ order.id }}</h1>
+    <p class="text-secondary mb-0">{{ order.full_name }} • {{ order.email }}</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a class="btn btn-outline-secondary" href="{% url 'orders:staff_order_list' %}">Back</a>
+    <a class="btn btn-primary" href="{% url 'orders:staff_order_update' order.pk %}">Update</a>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-8">
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="mb-3">Items</h5>
+        <ul class="list-group list-group-flush">
+          {% for item in order.items.all %}
+            <li class="list-group-item d-flex justify-content-between">
+              <div>
+                <strong>{{ item.product_name_snapshot }}</strong><br>
+                <small class="text-secondary">{{ item.quantity }} × €{{ item.unit_price }} / {{ item.grind }}</small>
+              </div>
+              <div class="text-end">
+                <div>€{{ item.line_total }}</div>
+                <div class="text-secondary small">{{ item.weight_grams }}g</div>
+              </div>
+            </li>
+          {% empty %}
+            <li class="list-group-item text-secondary">No items.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <h5 class="mb-3">Summary</h5>
+        <p class="mb-1">Status: <span class="badge text-bg-info text-uppercase">{{ order.status }}</span></p>
+        <p class="mb-1">Subtotal: €{{ order.subtotal }}</p>
+        <p class="mb-1">Shipping: €{{ order.shipping }}</p>
+        <p class="fw-semibold">Total: €{{ order.total }}</p>
+        {% if order.fulfilled_at %}<p class="text-secondary">Fulfilled at {{ order.fulfilled_at|date:"Y-m-d H:i" }}</p>{% endif %}
+        {% if order.notes %}<p class="text-secondary small mb-0">Notes: {{ order.notes }}</p>{% endif %}
+        <hr>
+        <form method="post" action="{% url 'orders:staff_order_delete' order.pk %}" class="d-grid gap-2">
+          {% csrf_token %}
+          <button class="btn btn-outline-danger" type="submit">Delete order</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

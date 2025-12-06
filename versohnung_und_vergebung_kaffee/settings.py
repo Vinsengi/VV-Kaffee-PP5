@@ -82,6 +82,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "cart.context_processors.cart_summary",
+                "versohnung_und_vergebung_kaffee.context_processors.staff_mode_context",
             ],
         },
     },

@@ -39,7 +39,18 @@
         <div class="collapse navbar-collapse" id="mainNavbar">
           <ul class="navbar-nav me-auto">
             <li class="nav-item"><a class="nav-link" href="{% url 'products:product_list' %}">Shop</a></li>
-            {% if user.is_authenticated %}
+            {% if worker_user and staff_mode_active %}
+              {% if perms.products.add_product or perms.products.change_product or perms.products.delete_product or perms.products.view_product %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'products:staff_product_list' %}">Products Management</a></li>
+              {% endif %}
+              {% if perms.orders.view_order or perms.orders.change_order or perms.orders.delete_order %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'orders:staff_order_list' %}">Orders Management</a></li>
+              {% endif %}
+              {% if perms.orders.view_fulfillment or user|has_group:"Fulfillment Department" %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'orders:fulfillment_paid_orders' %}">Fulfillment</a></li>
+              {% endif %}
+            {% endif %}
+            {% if user.is_authenticated and not worker_user or user.is_authenticated and not staff_mode_active %}
               <li class="nav-item"><a class="nav-link" href="{% url 'orders:my_orders' %}">My Orders</a></li>
               <li class="nav-item"><a class="nav-link" href="{% url 'profiles:account_dashboard' %}">My Account</a></li>
             {% endif %}
@@ -52,6 +63,11 @@
                 <a class="nav-link dropdown-toggle" href="#" id="accountMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   {{ user.username|default:user.email }}
                 </a>
+                {% if worker_user %}
+                  <span class="badge {% if staff_mode_active %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                    {% if staff_mode_active %}Work mode{% else %}Customer mode{% endif %}
+                  </span>
+                {% endif %}
                 {% if user.profile and user.profile.image %}
                   <img src="{{ user.profile.image.url }}" alt="Profile image" class="rounded-circle border" style="width:32px;height:32px;object-fit:cover;">
                 {% else %}
@@ -60,11 +76,31 @@
                   </div>
                 {% endif %}
                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountMenu">
-                  <li><a class="dropdown-item" href="{% url 'profiles:account_dashboard' %}">My Account</a></li>
                   <li><a class="dropdown-item" href="{% url 'profiles:profile_edit' %}">Profile</a></li>
-                  {% if user|has_group:"Fulfillment Department" %}
+                  {% if worker_user %}
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="{% url 'orders:fulfillment_paid_orders' %}">Fulfillment</a></li>
+                    <li class="dropdown-item-text">
+                      {% if staff_mode_active %}
+                        <span class="badge bg-warning text-dark">Work mode</span>
+                        {% if staff_role_labels %}
+                          <div class="small text-muted">Roles: {{ staff_role_labels|join:", " }}</div>
+                        {% endif %}
+                        <div class="small text-muted">Customer links hidden.</div>
+                      {% else %}
+                        <span class="badge bg-secondary">Customer mode</span>
+                        <div class="small text-muted">Work links hidden so you can shop.</div>
+                      {% endif %}
+                    </li>
+                    <li>
+                      <form method="post" action="{% url 'profiles:toggle_staff_mode' %}" class="px-3 py-2">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                        <input type="hidden" name="mode" value="{% if staff_mode_active %}customer{% else %}staff{% endif %}">
+                        <button class="btn btn-outline-primary w-100" type="submit">
+                          {% if staff_mode_active %}Switch to customer mode{% else %}Switch to work mode{% endif %}
+                        </button>
+                      </form>
+                    </li>
                   {% endif %}
                   <li><hr class="dropdown-divider"></li>
                   <li>
@@ -79,16 +115,18 @@
               <li class="nav-item"><a class="nav-link" href="{% url 'account_login' %}">Login</a></li>
               <li class="nav-item"><a class="nav-link" href="{% url 'account_signup' %}">Register</a></li>
             {% endif %}
-            <li class="nav-item">
-              <a class="btn btn-dark position-relative" href="{% url 'cart:detail' %}">
-                Cart
-                {% if cart_item_count %}
-                  <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                    {{ cart_item_count }}
-                  </span>
-                {% endif %}
-              </a>
-            </li>
+            {% if not worker_user or not staff_mode_active %}
+              <li class="nav-item">
+                <a class="btn btn-dark position-relative" href="{% url 'cart:detail' %}">
+                  Cart
+                  {% if cart_item_count %}
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                      {{ cart_item_count }}
+                    </span>
+                  {% endif %}
+                </a>
+              </li>
+            {% endif %}
           </ul>
         </div>
       </div>

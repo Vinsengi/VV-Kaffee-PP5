@@ -123,6 +123,14 @@ VV-Kaffee follows a **direct-to-consumer (D2C) online retail model**:
         - Double opt-in confirmation for GDPR compliance  
         - Unsubscribe link included in every newsletter
 
+## Staff & Fulfillment Modes
+
+- **Concept**: Workers (staff or fulfillment-capable users) have two modes: Work mode (default) and Customer mode (manual toggle). Fulfillment-only users remain non-staff and cannot access Django admin.
+- **Navigation & Visibility**: In Work mode, customer links/cart are hidden; only permitted tools appear. Staff see Products/Orders links based on their `products.*` and `orders.*` permissions. Fulfillers see the Fulfillment link if they have `orders.view_fulfillment` or are in the “Fulfillment Department” group. In Customer mode, staff/fulfillment links disappear and standard shop/cart/account links return. A badge plus a full-width toggle button live in the user dropdown.
+- **Redirects & Guardrails**: Workers in Work mode who hit customer account/order pages are redirected to the fulfillment queue with an info message. The fulfillment button/card on the account page renders only when the user is in Work mode and has fulfillment access.
+- **Permissions & Groups**: Fulfillers need `orders.view_fulfillment` (and typically `orders.change_fulfillment_status`) or membership in “Fulfillment Department.” Product/order managers need the relevant `products.*`/`orders.*` perms. Admin staff set `is_staff=True`; fulfillment-only users can stay non-staff.
+- **Mode Behavior Summary**: Workers default to Work mode after login; non-workers stay customer-only. The dropdown toggle switches between Work mode and Customer mode; Customer mode re-enables cart/account for shopping. If links don’t appear, verify permissions/groups and that the user is in Work mode.
+
 ---
 
 ## 📦 Other Features

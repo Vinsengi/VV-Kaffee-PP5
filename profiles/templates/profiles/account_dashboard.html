@@ -6,10 +6,12 @@
   <!-- Title + optional Fulfillment shortcut -->
   <div class="d-flex align-items-center justify-content-between mb-3">
     <h2 class="mb-0">My Account</h2>
-    {% if user|has_group:"Fulfillment Department" %}
+    {% if worker_user and staff_mode_active %}
+      {% if perms.orders.view_fulfillment or user|has_group:"Fulfillment Department" %}
       <a class="btn btn-sm btn-success" href="{% url 'orders:fulfillment_paid_orders' %}">
         Fulfillment Panel
       </a>
+      {% endif %}
     {% endif %}
   </div>
 
@@ -39,7 +41,8 @@
       </div>
 
       <!-- Fulfillment quick access card (only for staff in Fulfillment Department) -->
-      {% if user|has_group:"Fulfillment Department" %}
+      {% if worker_user and staff_mode_active %}
+      {% if perms.orders.view_fulfillment or user|has_group:"Fulfillment Department" %}
       <div class="card border-success mt-3">
         <div class="card-body">
           <div class="d-flex align-items-center justify-content-between mb-2">
@@ -63,6 +66,7 @@
           </p>
         </div>
       </div>
+      {% endif %}
       {% endif %}
     </div>
 

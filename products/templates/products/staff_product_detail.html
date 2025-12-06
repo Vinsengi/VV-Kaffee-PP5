@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <div>
+    <h1 class="h4 mb-0">{{ product.name }}</h1>
+    <p class="text-secondary mb-0">SKU {{ product.sku }}</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a class="btn btn-outline-secondary" href="{% url 'products:staff_product_list' %}">Back</a>
+    <a class="btn btn-primary" href="{% url 'products:staff_product_update' product.pk %}">Edit</a>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-8">
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5 class="mb-3">Details</h5>
+        <dl class="row mb-0">
+          <dt class="col-sm-4">Price</dt>
+          <dd class="col-sm-8">€{{ product.price }}</dd>
+
+          <dt class="col-sm-4">Stock</dt>
+          <dd class="col-sm-8">{{ product.stock|default:0 }}</dd>
+
+          <dt class="col-sm-4">Roast</dt>
+          <dd class="col-sm-8">{{ product.get_roast_type_display }}</dd>
+
+          <dt class="col-sm-4">Grinds</dt>
+          <dd class="col-sm-8">{{ product.available_grinds }}</dd>
+
+          <dt class="col-sm-4">Status</dt>
+          <dd class="col-sm-8">
+            {% if product.is_active %}<span class="badge text-bg-success">Active</span>{% else %}<span class="badge text-bg-secondary">Hidden</span>{% endif %}
+          </dd>
+
+          <dt class="col-sm-4">Origin</dt>
+          <dd class="col-sm-8">{{ product.origin }}</dd>
+
+          <dt class="col-sm-4">Notes</dt>
+          <dd class="col-sm-8">{{ product.tasting_notes|default:"—" }}</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100">
+      {% if product.image %}
+        <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+      {% endif %}
+      <div class="card-body">
+        <p class="mb-2">Weight: {{ product.weight_grams }}g</p>
+        <p class="mb-2">Updated: {{ product.updated_at|date:"Y-m-d H:i" }}</p>
+        <a class="btn btn-outline-danger w-100" href="{% url 'products:staff_product_delete' product.pk %}">Delete</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

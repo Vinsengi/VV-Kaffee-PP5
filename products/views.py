@@ -1,9 +1,14 @@
 # products/views.py
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Avg, Count, Prefetch
-from django.views.generic import ListView, DetailView
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.generic import DetailView, ListView
+
 from orders.models import OrderItem
 from reviews.forms import ProductReviewForm
 from reviews.models import ProductReview
+from .forms import ProductForm
 from .models import Product
 
 
@@ -89,3 +94,77 @@ class ProductDetailView(DetailView):
         ctx["can_review"] = can_review
         ctx["review_form_reset"] = reset_review_form
         return ctx
+
+
+staff_required = user_passes_test(lambda u: u.is_staff)
+manager_required = user_passes_test(
+    lambda u: u.is_staff and u.has_perm("products.add_product")
+)
+
+
+@login_required
+@staff_required
+def staff_product_list(request):
+    products = Product.objects.order_by("-created_at")
+    return render(request, "products/staff_product_list.html", {"products": products})
+
+
+@login_required
+@staff_required
+def staff_product_detail(request, pk: int):
+    product = get_object_or_404(Product, pk=pk)
+    return render(request, "products/staff_product_detail.html", {"product": product})
+
+
+@login_required
+@manager_required
+def staff_product_create(request):
+    if request.method == "POST":
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            product = form.save()
+            messages.success(request, "Product created successfully.")
+            return redirect("products:staff_product_detail", pk=product.pk)
+    else:
+        form = ProductForm()
+
+    return render(
+        request,
+        "products/staff_product_form.html",
+        {"form": form, "is_create": True, "product": None},
+    )
+
+
+@login_required
+@staff_required
+def staff_product_update(request, pk: int):
+    product = get_object_or_404(Product, pk=pk)
+    if request.method == "POST":
+        form = ProductForm(request.POST, request.FILES, instance=product)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Product updated successfully.")
+            return redirect("products:staff_product_detail", pk=product.pk)
+    else:
+        form = ProductForm(instance=product)
+
+    return render(
+        request,
+        "products/staff_product_form.html",
+        {"form": form, "product": product, "is_create": False},
+    )
+
+
+@login_required
+@staff_required
+def staff_product_delete(request, pk: int):
+    product = get_object_or_404(Product, pk=pk)
+    if request.method == "POST":
+        product.delete()
+        messages.success(request, "Product deleted.")
+        return redirect("products:staff_product_list")
+    return render(
+        request,
+        "products/staff_product_confirm_delete.html",
+        {"product": product},
+    )
