@@ -4,7 +4,9 @@ from .models import Product
 
 
 class ProductForm(forms.ModelForm):
-    price = forms.DecimalField(min_value=0.01, max_digits=8, decimal_places=2)
+    cost_price = forms.DecimalField(min_value=0, max_digits=8, decimal_places=2, help_text="Cost to acquire/produce (EUR).")
+    markup_percent = forms.DecimalField(min_value=0, max_digits=5, decimal_places=2, help_text="Markup as percentage (e.g., 25 = 25%).")
+    price = forms.DecimalField(min_value=0, max_digits=8, decimal_places=2, disabled=True, required=False, label="Sale price (cost + markup%)")
     weight_grams = forms.IntegerField(min_value=1)
     stock = forms.IntegerField(
         min_value=0,
@@ -25,6 +27,8 @@ class ProductForm(forms.ModelForm):
             "process",
             "roast_type",
             "tasting_notes",
+            "cost_price",
+            "markup_percent",
             "price",
             "weight_grams",
             "available_grinds",
@@ -49,3 +53,10 @@ class ProductForm(forms.ModelForm):
                 f"Invalid grind options: {', '.join(invalid)}"
             )
         return ",".join(values)
+
+    def clean(self):
+        cleaned = super().clean()
+        cost = cleaned.get("cost_price") or 0
+        pct = cleaned.get("markup_percent") or 0
+        cleaned["price"] = cost * (1 + pct / 100)
+        return cleaned

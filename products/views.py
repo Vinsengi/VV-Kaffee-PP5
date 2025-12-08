@@ -1,4 +1,6 @@
 # products/views.py
+from decimal import Decimal, ROUND_HALF_UP
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Avg, Count, Prefetch
@@ -105,15 +107,45 @@ manager_required = user_passes_test(
 @login_required
 @staff_required
 def staff_product_list(request):
-    products = Product.objects.order_by("-created_at")
-    return render(request, "products/staff_product_list.html", {"products": products})
+    products = list(Product.objects.order_by("-created_at"))
+
+    for p in products:
+        stock_qty = Decimal(p.stock or 0)
+        kg_total = (Decimal(p.weight_grams or 0) * stock_qty / Decimal(1000)).quantize(Decimal("0.001"))
+        unit_cost = Decimal(p.cost_price or 0)
+        unit_price = Decimal(p.price or 0)
+        p.total_kg = kg_total
+        p.total_cost = (unit_cost * kg_total).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        p.total_revenue = (unit_price * kg_total).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+    return render(
+        request,
+        "products/staff_product_list.html",
+        {"products": products},
+    )
 
 
 @login_required
 @staff_required
 def staff_product_detail(request, pk: int):
     product = get_object_or_404(Product, pk=pk)
-    return render(request, "products/staff_product_detail.html", {"product": product})
+    stock_qty = Decimal(product.stock or 0)
+    kg_total = (Decimal(product.weight_grams or 0) * stock_qty / Decimal(1000)).quantize(Decimal("0.001"))
+    unit_cost = Decimal(product.cost_price or 0)
+    unit_price = Decimal(product.price or 0)
+    total_cost = (unit_cost * kg_total).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    total_revenue = (unit_price * kg_total).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+    return render(
+        request,
+        "products/staff_product_detail.html",
+        {
+            "product": product,
+            "total_kg": kg_total,
+            "total_cost": total_cost,
+            "total_revenue": total_revenue,
+        },
+    )
 
 
 @login_required

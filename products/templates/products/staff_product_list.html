@@ -18,7 +18,12 @@
           <tr>
             <th>Name</th>
             <th>SKU</th>
+            <th>Cost</th>
+            <th>Markup %</th>
             <th>Price</th>
+            <th>Total Kg</th>
+            <th>Total Cost</th>
+            <th>Expected Revenue</th>
             <th>Stock</th>
             <th>Status</th>
             <th></th>
@@ -29,7 +34,12 @@
           <tr>
             <td class="fw-semibold">{{ product.name }}</td>
             <td class="text-muted">{{ product.sku }}</td>
+            <td>€{{ product.cost_price }}</td>
+            <td>{{ product.markup_percent }}%</td>
             <td>€{{ product.price }}</td>
+            <td>{{ product.total_kg }}</td>
+            <td>€{{ product.total_cost }}</td>
+            <td>€{{ product.total_revenue }}</td>
             <td>{{ product.stock|default:0 }}</td>
             <td>
               {% if product.is_active %}
@@ -45,7 +55,7 @@
             </td>
           </tr>
           {% empty %}
-          <tr><td colspan="6" class="text-center text-secondary">No products yet.</td></tr>
+          <tr><td colspan="11" class="text-center text-secondary">No products yet.</td></tr>
           {% endfor %}
         </tbody>
       </table>

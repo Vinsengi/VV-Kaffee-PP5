@@ -39,7 +39,7 @@ from django.contrib.auth.decorators import login_required, permission_required, 
 from django.http import HttpResponseForbidden, Http404
 
 from django.utils import timezone
-from django.db.models import F
+from django.db.models import F, Sum, DecimalField, ExpressionWrapper, Q
 from django.views.decorators.http import require_POST
 from datetime import timedelta
 from .emails import send_order_pending_email
@@ -507,16 +507,18 @@ def _ensure_paid_or_superuser(order, user):
     raise Http404("Order not available")
 
 
-PACKABLE_STATUSES = ["paid"]
+PACKABLE_STATUSES = ["paid", "pending_fulfillment"]
 
 
 @login_required
 @permission_required("orders.view_fulfillment", raise_exception=True)
 def fulfillment_paid_orders(request):
-    orders = (Order.objects
-              .filter(status__in=PACKABLE_STATUSES)
-              .order_by("-created_at")
-              .prefetch_related("items"))
+    orders = (
+        Order.objects
+        .filter(status__in=PACKABLE_STATUSES)
+        .order_by("-created_at")
+        .prefetch_related("items")
+    )
     q = request.GET.get("q")
     if q:
         orders = orders.filter(full_name__icontains=q) | orders.filter(email__icontains=q)
@@ -571,7 +573,62 @@ def staff_order_list(request):
         .prefetch_related("items__product")
         .order_by("-created_at")
     )
-    return render(request, "orders/staff_order_list.html", {"orders": orders})
+
+    status_filter = request.GET.get("status")
+    query = request.GET.get("q")
+    date_from = request.GET.get("date_from")
+    date_to = request.GET.get("date_to")
+
+    if status_filter:
+        orders = orders.filter(status=status_filter)
+
+    if query:
+        orders = orders.filter(
+            Q(full_name__icontains=query)
+            | Q(email__icontains=query)
+            | Q(user__username__icontains=query)
+        )
+
+    if date_from:
+        orders = orders.filter(created_at__date__gte=date_from)
+    if date_to:
+        orders = orders.filter(created_at__date__lte=date_to)
+
+    # Revenue dashboard (paid + fulfilled)
+    revenue_statuses = ["paid", "pending_fulfillment", "fulfilled"]
+    revenue_orders = orders.filter(status__in=revenue_statuses)
+    revenue_total = revenue_orders.aggregate(total=Sum("total"))["total"] or Decimal("0.00")
+
+    line_value = ExpressionWrapper(
+        F("unit_price") * F("quantity"),
+        output_field=DecimalField(max_digits=12, decimal_places=2),
+    )
+    revenue_by_product = list(
+        OrderItem.objects.filter(order__in=revenue_orders)
+        .values("product_name_snapshot")
+        .annotate(amount=Sum(line_value))
+        .order_by("-amount")
+    )
+    total_amount = revenue_total or Decimal("0.00")
+    for row in revenue_by_product:
+        amt = row.get("amount") or Decimal("0.00")
+        row["percent"] = int((amt / total_amount * 100)) if total_amount else 0
+
+    return render(
+        request,
+        "orders/staff_order_list.html",
+        {
+            "orders": orders,
+            "revenue_total": revenue_total,
+            "revenue_by_product": revenue_by_product,
+            "revenue_top_amount": total_amount,
+            "status_filter": status_filter or "",
+            "query": query or "",
+            "date_from": date_from or "",
+            "date_to": date_to or "",
+            "status_choices": Order.STATUS_CHOICES,
+        },
+    )
 
 
 @login_required

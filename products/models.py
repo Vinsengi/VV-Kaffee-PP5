@@ -1,6 +1,6 @@
 """Product catalogue models."""
 
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 from typing import List, Optional
 
 from django.db import models
@@ -59,25 +59,18 @@ class Product(models.Model):
     # Coffee specifics
     origin = models.CharField(max_length=120, default="Rwanda")
     farm = models.CharField(max_length=120, blank=True)
-    # e.g., Bourbon, Jackson
     variety = models.CharField(max_length=120, blank=True)
-    # meters above sea level
     altitude_masl = models.PositiveIntegerField(null=True, blank=True)
-    # e.g., Washed, Natural, Honey
     process = models.CharField(max_length=120, blank=True)
-    roast_type = models.CharField(
-        max_length=20,
-        choices=ROAST_CHOICES,
-        default="medium",
-    )
+    roast_type = models.CharField(max_length=20, choices=ROAST_CHOICES, default="medium")
     tasting_notes = models.CharField(max_length=200, blank=True)
 
     # Commercial
-    price = models.DecimalField(max_digits=8, decimal_places=2)  # EUR
-    # 250g, 500g, 1000g, etc.
+    cost_price = models.DecimalField(max_digits=8, decimal_places=2, default=0)  # EUR
+    markup_percent = models.DecimalField(max_digits=5, decimal_places=2, default=0)  # percent
+    price = models.DecimalField(max_digits=8, decimal_places=2)  # EUR (stored sale price)
     weight_grams = models.PositiveIntegerField(default=250)
-    # comma list of GRIND_CHOICES keys
-    available_grinds = models.CharField(max_length=120, default="whole")
+    available_grinds = models.CharField(max_length=120, default="whole")  # comma list of GRIND_CHOICES keys
 
     # Inventory & media
     stock = models.PositiveIntegerField(default=0)
@@ -99,10 +92,13 @@ class Product(models.Model):
         return f"{self.name} ({self.weight_grams}g)"
 
     def save(self, *args, **kwargs) -> None:
-        """Ensure a stable slug that reflects product name and weight."""
+        """Ensure a stable slug and keep stored price in sync with cost + markup%."""
 
         if not self.slug:
             self.slug = slugify(f"{self.name}-{self.weight_grams}")
+
+        sale_price = self.sale_price.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        self.price = sale_price
         super().save(*args, **kwargs)
 
     def get_absolute_url(self) -> str:
@@ -144,3 +140,10 @@ class Product(models.Model):
         """Human-readable price label for admin and templates."""
 
         return f"€{self.price:.2f}"
+
+    @property
+    def sale_price(self) -> Decimal:
+        """Computed sale price based on cost + markup%."""
+        cost = self.cost_price or Decimal("0.00")
+        pct = self.markup_percent or Decimal("0.00")
+        return cost * (Decimal("1.00") + (pct / Decimal("100")))
