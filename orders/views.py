@@ -518,6 +518,7 @@ def fulfillment_paid_orders(request):
         .filter(status__in=PACKABLE_STATUSES)
         .order_by("-created_at")
         .prefetch_related("items")
+        .annotate(total_quantity=Sum("items__quantity"))
     )
     q = request.GET.get("q")
     if q:
@@ -557,7 +558,8 @@ def fulfillment_recently_fulfilled(request):
     orders = (Order.objects
               .filter(status="fulfilled")
               .order_by("-created_at")[:20]      # last 20
-              .prefetch_related("items"))
+              .prefetch_related("items")
+              .annotate(total_quantity=Sum("items__quantity")))
     return render(request, "orders/fulfillment_recent.html", {"orders": orders})
 
 

@@ -37,7 +37,7 @@
             <td>€{{ product.cost_price }}</td>
             <td>{{ product.markup_percent }}%</td>
             <td>€{{ product.price }}</td>
-            <td>{{ product.total_kg }}</td>
+            <td>{{ product.total_kg|floatformat:0 }}</td>
             <td>€{{ product.total_cost }}</td>
             <td>€{{ product.total_revenue }}</td>
             <td>{{ product.batch_stock_units|default:0 }}</td>

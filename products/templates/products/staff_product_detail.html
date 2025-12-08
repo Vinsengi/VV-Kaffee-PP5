@@ -78,9 +78,9 @@
                 {% for b in batches %}
                   <tr>
                     <td>{{ b.received_at|date:"Y-m-d H:i" }}</td>
-                    <td>{{ b.quantity_kg }}</td>
-                    <td>{{ b.remaining_kg }}</td>
-                    <td>€{{ b.unit_cost }}</td>
+                    <td>{{ b.quantity_kg|floatformat:"-1" }}</td>
+                    <td>{{ b.remaining_kg|floatformat:"-1" }}</td>
+                    <td>€{{ b.unit_cost|floatformat:2 }}</td>
                     <td class="text-muted small">{{ b.note|default:"—" }}</td>
                     <td class="text-end">
                       <a class="btn btn-sm btn-outline-primary" href="{% url 'products:staff_product_batch_edit' b.id %}">Adjust</a>

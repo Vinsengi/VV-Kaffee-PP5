@@ -38,7 +38,7 @@
           <td>#{{ o.id }}</td>
           <td>{{ o.full_name|default:"" }}</td>
           <td>{{ o.email|default:"" }}</td>
-          <td>{{ o.items.count }}</td>
+          <td>{{ o.total_quantity|default:o.items.count }}</td>
           <td>
             {% if o.items.all %}
               {% for item in o.items.all %}
