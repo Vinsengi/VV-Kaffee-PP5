@@ -27,6 +27,16 @@ urlpatterns = [
         name="staff_product_delete",
     ),
     path(
+        "staff/products/<int:product_id>/batches/add/",
+        views.staff_product_batch_add,
+        name="staff_product_batch_add",
+    ),
+    path(
+        "staff/batches/<int:batch_id>/edit/",
+        views.staff_product_batch_edit,
+        name="staff_product_batch_edit",
+    ),
+    path(
         "<slug:slug>/",
         views.ProductDetailView.as_view(),
         name="product_detail",

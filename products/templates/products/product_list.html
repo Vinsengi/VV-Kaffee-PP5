@@ -11,12 +11,17 @@ Browse and order ethically sourced Rwandan coffee beans from VV-Kaffee.
     <div class="row g-4">
       {% for p in products %}
         <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-          <div class="card h-100">
+          <div class="card h-100 {% if not p.is_in_stock %}border-0 bg-light{% endif %}" style="{% if not p.is_in_stock %}opacity:0.55;{% endif %}">
             {% if p.image %}
               <img src="{{ p.image.url }}" class="card-img-top" alt="{{ p.name }}">
             {% endif %}
             <div class="card-body d-flex flex-column">
-              <h5 class="card-title">{{ p.name }}</h5>
+              <h5 class="card-title d-flex align-items-center gap-2">
+                {{ p.name }}
+                {% if not p.is_in_stock %}
+                  <span class="badge bg-secondary">Sold Out</span>
+                {% endif %}
+              </h5>
               <p class="mb-1 text-muted">
                 {{ p.roast_type|title }} • {{ p.weight_grams }}g • €{{ p.price }}
               </p>
@@ -39,7 +44,9 @@ Browse and order ethically sourced Rwandan coffee beans from VV-Kaffee.
                   {% endif %}
                 </div>
               </div>
-               <a href="{{ p.get_absolute_url }}" class="mt-auto btn btn-primary">View details</a> 
+               <a href="{{ p.get_absolute_url }}" class="mt-auto btn {% if not p.is_in_stock %}btn-secondary disabled{% else %}btn-primary{% endif %}">
+                 {% if not p.is_in_stock %}Sold out{% else %}View details{% endif %}
+               </a> 
             </div>
           </div>
         </div>

@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Product
+from .models import Product, ProductBatch
 
 
 class ProductForm(forms.ModelForm):
@@ -59,4 +59,23 @@ class ProductForm(forms.ModelForm):
         cost = cleaned.get("cost_price") or 0
         pct = cleaned.get("markup_percent") or 0
         cleaned["price"] = cost * (1 + pct / 100)
+        return cleaned
+
+
+class ProductBatchForm(forms.ModelForm):
+    class Meta:
+        model = ProductBatch
+        fields = ["quantity_grams", "remaining_grams", "unit_cost", "note"]
+        widgets = {
+            "note": forms.TextInput(attrs={"class": "form-control"}),
+        }
+
+    def clean(self):
+        cleaned = super().clean()
+        qty = cleaned.get("quantity_grams") or 0
+        rem = cleaned.get("remaining_grams")
+        if rem is None:
+            cleaned["remaining_grams"] = qty
+        elif rem > qty:
+            raise forms.ValidationError("Remaining grams cannot exceed received grams.")
         return cleaned

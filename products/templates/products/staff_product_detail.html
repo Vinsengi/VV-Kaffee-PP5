@@ -35,8 +35,8 @@
           <dt class="col-sm-4">Expected Revenue (price x kg)</dt>
           <dd class="col-sm-8">€{{ total_revenue }}</dd>
 
-          <dt class="col-sm-4">Stock</dt>
-          <dd class="col-sm-8">{{ product.stock|default:0 }}</dd>
+          <dt class="col-sm-4">Stock (units from batches)</dt>
+          <dd class="col-sm-8">{{ batch_stock_units }}</dd>
 
           <dt class="col-sm-4">Roast</dt>
           <dd class="col-sm-8">{{ product.get_roast_type_display }}</dd>
@@ -57,6 +57,44 @@
         </dl>
       </div>
     </div>
+
+    <div class="card">
+      <div class="card-body">
+        <h5 class="mb-3">Batches (FIFO)</h5>
+        {% if batches %}
+          <div class="table-responsive">
+            <table class="table table-sm align-middle">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Received (kg)</th>
+                  <th>Remaining (kg)</th>
+                  <th>Unit Cost</th>
+                  <th>Note</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for b in batches %}
+                  <tr>
+                    <td>{{ b.received_at|date:"Y-m-d H:i" }}</td>
+                    <td>{{ b.quantity_kg }}</td>
+                    <td>{{ b.remaining_kg }}</td>
+                    <td>€{{ b.unit_cost }}</td>
+                    <td class="text-muted small">{{ b.note|default:"—" }}</td>
+                    <td class="text-end">
+                      <a class="btn btn-sm btn-outline-primary" href="{% url 'products:staff_product_batch_edit' b.id %}">Adjust</a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="text-muted">No batches recorded.</div>
+        {% endif %}
+      </div>
+    </div>
   </div>
   <div class="col-md-4">
     <div class="card h-100">
@@ -66,6 +104,7 @@
       <div class="card-body">
         <p class="mb-2">Weight: {{ product.weight_grams }}g</p>
         <p class="mb-2">Updated: {{ product.updated_at|date:"Y-m-d H:i" }}</p>
+        <a class="btn btn-success w-100 mb-2" href="{% url 'products:staff_product_batch_add' product.pk %}">Add Batch</a>
         <a class="btn btn-outline-danger w-100" href="{% url 'products:staff_product_delete' product.pk %}">Delete</a>
       </div>
     </div>

@@ -532,8 +532,19 @@ def fulfillment_paid_orders(request):
 def mark_order_fulfilled(request, order_id):
     order = get_object_or_404(Order, pk=order_id)
     if order.status not in ("pending_fulfillment", "paid"):
-        # Ignore or show error if it’s not in a packable state
+        # Ignore or show error if it's not in a packable state
         return redirect("orders:fulfillment_paid_orders")
+
+    # Apply FIFO consumption on product batches before marking fulfilled
+    for item in order.items.select_related("product").all():
+        product = item.product
+        if not product:
+            continue
+        grams_needed = Decimal(item.weight_grams or 0) * Decimal(item.quantity or 0)
+        try:
+            product.consume_grams_fifo(grams_needed)
+        except Exception:
+            logger.exception("Failed to consume FIFO stock for product %s", product.id)
 
     order.status = "fulfilled"
     order.fulfilled_at = timezone.now()
@@ -576,6 +587,7 @@ def staff_order_list(request):
 
     status_filter = request.GET.get("status")
     query = request.GET.get("q")
+    product_query = request.GET.get("product")
     date_from = request.GET.get("date_from")
     date_to = request.GET.get("date_to")
 
@@ -593,6 +605,22 @@ def staff_order_list(request):
         orders = orders.filter(created_at__date__gte=date_from)
     if date_to:
         orders = orders.filter(created_at__date__lte=date_to)
+    if product_query:
+        orders = orders.filter(items__product_name_snapshot__icontains=product_query).distinct()
+
+    # Suggestions for autocomplete
+    order_ids = list(orders.values_list("id", flat=True))
+    customer_suggestions = (
+        orders.values_list("full_name", flat=True).distinct()
+    )
+    email_suggestions = (
+        orders.values_list("email", flat=True).distinct()
+    )
+    product_suggestions = (
+        OrderItem.objects.filter(order_id__in=order_ids)
+        .values_list("product_name_snapshot", flat=True)
+        .distinct()
+    )
 
     # Revenue dashboard (paid + fulfilled)
     revenue_statuses = ["paid", "pending_fulfillment", "fulfilled"]
@@ -626,7 +654,11 @@ def staff_order_list(request):
             "query": query or "",
             "date_from": date_from or "",
             "date_to": date_to or "",
+            "product_query": product_query or "",
             "status_choices": Order.STATUS_CHOICES,
+            "customer_suggestions": customer_suggestions,
+            "email_suggestions": email_suggestions,
+            "product_suggestions": product_suggestions,
         },
     )
 

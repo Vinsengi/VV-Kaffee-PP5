@@ -24,9 +24,9 @@
             <th>Total Kg</th>
             <th>Total Cost</th>
             <th>Expected Revenue</th>
-            <th>Stock</th>
+            <th>Stock (units from batches)</th>
             <th>Status</th>
-            <th></th>
+            <th style="width: 200px;"></th>
           </tr>
         </thead>
         <tbody>
@@ -40,7 +40,7 @@
             <td>{{ product.total_kg }}</td>
             <td>€{{ product.total_cost }}</td>
             <td>€{{ product.total_revenue }}</td>
-            <td>{{ product.stock|default:0 }}</td>
+            <td>{{ product.batch_stock_units|default:0 }}</td>
             <td>
               {% if product.is_active %}
                 <span class="badge text-bg-success">Active</span>

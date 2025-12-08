@@ -10,8 +10,8 @@ from django.views.generic import DetailView, ListView
 from orders.models import OrderItem
 from reviews.forms import ProductReviewForm
 from reviews.models import ProductReview
-from .forms import ProductForm
-from .models import Product
+from .forms import ProductForm, ProductBatchForm
+from .models import Product, ProductBatch
 
 
 class ProductListView(ListView):
@@ -107,16 +107,26 @@ manager_required = user_passes_test(
 @login_required
 @staff_required
 def staff_product_list(request):
-    products = list(Product.objects.order_by("-created_at"))
+    products = list(
+        Product.objects.order_by("-created_at").prefetch_related("batches")
+    )
 
     for p in products:
-        stock_qty = Decimal(p.stock or 0)
-        kg_total = (Decimal(p.weight_grams or 0) * stock_qty / Decimal(1000)).quantize(Decimal("0.001"))
-        unit_cost = Decimal(p.cost_price or 0)
-        unit_price = Decimal(p.price or 0)
-        p.total_kg = kg_total
-        p.total_cost = (unit_cost * kg_total).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-        p.total_revenue = (unit_price * kg_total).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        # Compute based on batches (remaining grams)
+        batches = list(p.batches.all())
+        total_grams = sum((Decimal(b.remaining_grams or 0) for b in batches), Decimal("0"))
+        total_kg = (total_grams / Decimal(1000)).quantize(Decimal("0.001"))
+        p.total_kg = total_kg
+        p.batch_stock_units = p.batch_stock_units()
+
+        total_cost = Decimal("0.00")
+        for b in batches:
+            kg = (Decimal(b.remaining_grams or 0) / Decimal(1000))
+            total_cost += kg * (b.unit_cost or Decimal("0.00"))
+        p.total_cost = total_cost.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+        sale_price = Decimal(p.price or 0)
+        p.total_revenue = (sale_price * total_kg).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
     return render(
         request,
@@ -128,13 +138,25 @@ def staff_product_list(request):
 @login_required
 @staff_required
 def staff_product_detail(request, pk: int):
-    product = get_object_or_404(Product, pk=pk)
-    stock_qty = Decimal(product.stock or 0)
-    kg_total = (Decimal(product.weight_grams or 0) * stock_qty / Decimal(1000)).quantize(Decimal("0.001"))
-    unit_cost = Decimal(product.cost_price or 0)
+    product = get_object_or_404(
+        Product.objects.prefetch_related("batches"),
+        pk=pk,
+    )
+    batches = list(product.batches.all())
+    total_grams = sum((Decimal(b.remaining_grams or 0) for b in batches), Decimal("0"))
+    kg_total = (total_grams / Decimal(1000)).quantize(Decimal("0.001"))
+
+    total_cost = Decimal("0.00")
+    for b in batches:
+        b.quantity_kg = (Decimal(b.quantity_grams or 0) / Decimal(1000)).quantize(Decimal("0.001"))
+        b.remaining_kg = (Decimal(b.remaining_grams or 0) / Decimal(1000)).quantize(Decimal("0.001"))
+        kg = (Decimal(b.remaining_grams or 0) / Decimal(1000))
+        total_cost += kg * (b.unit_cost or Decimal("0.00"))
+    total_cost = total_cost.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
     unit_price = Decimal(product.price or 0)
-    total_cost = (unit_cost * kg_total).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
     total_revenue = (unit_price * kg_total).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    stock_units = product.batch_stock_units()
 
     return render(
         request,
@@ -144,6 +166,8 @@ def staff_product_detail(request, pk: int):
             "total_kg": kg_total,
             "total_cost": total_cost,
             "total_revenue": total_revenue,
+            "batches": batches,
+            "batch_stock_units": stock_units,
         },
     )
 
@@ -199,4 +223,49 @@ def staff_product_delete(request, pk: int):
         request,
         "products/staff_product_confirm_delete.html",
         {"product": product},
+    )
+
+
+@login_required
+@manager_required
+def staff_product_batch_add(request, product_id: int):
+    product = get_object_or_404(Product, pk=product_id)
+    if request.method == "POST":
+        form = ProductBatchForm(request.POST)
+        if form.is_valid():
+            batch = form.save(commit=False)
+            batch.product = product
+            if batch.remaining_grams is None or batch.remaining_grams == 0:
+                batch.remaining_grams = batch.quantity_grams
+            batch.save()
+            messages.success(request, "Batch added.")
+            return redirect("products:staff_product_detail", pk=product.id)
+    else:
+        form = ProductBatchForm(initial={"remaining_grams": None})
+
+    return render(
+        request,
+        "products/batch_form.html",
+        {"form": form, "product": product, "is_create": True},
+    )
+
+
+@login_required
+@manager_required
+def staff_product_batch_edit(request, batch_id: int):
+    batch = get_object_or_404(ProductBatch, pk=batch_id)
+    product = batch.product
+    if request.method == "POST":
+        form = ProductBatchForm(request.POST, instance=batch)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Batch updated.")
+            return redirect("products:staff_product_detail", pk=product.id)
+    else:
+        form = ProductBatchForm(instance=batch)
+
+    return render(
+        request,
+        "products/batch_form.html",
+        {"form": form, "product": product, "is_create": False},
     )
