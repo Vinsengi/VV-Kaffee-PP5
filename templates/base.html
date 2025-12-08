@@ -43,7 +43,7 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
       <div class="container">
-        <a class="navbar-brand d-flex align-items-center" href="/">
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
           <img src="{% static 'branding/logo.png' %}" alt="VV Kaffee" width="28" height="28" class="rounded">
           <span class="fw-semibold">Home</span>
         </a>
@@ -54,7 +54,6 @@
         <div class="collapse navbar-collapse" id="mainNavbar">
           {% with current=request.resolver_match.url_name %}
           <ul class="navbar-nav me-auto">
-            <li class="nav-item"><a class="nav-link {% if current == 'home' %}active-nav{% endif %}" href="/">Home</a></li>
             <li class="nav-item"><a class="nav-link {% if current == 'product_list' %}active-nav{% endif %}" href="{% url 'products:product_list' %}">Shop</a></li>
             {% if worker_user and staff_mode_active %}
               {% if perms.products.add_product or perms.products.change_product or perms.products.delete_product or perms.products.view_product %}

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Shop – VV-Kaffee{% endblock %}
+{% block title %}Shop — VV-Kaffee{% endblock %}
 {% block meta_description %}
 Browse and order ethically sourced Rwandan coffee beans from VV-Kaffee.
 {% endblock %}
@@ -16,17 +16,15 @@ Browse and order ethically sourced Rwandan coffee beans from VV-Kaffee.
               <img src="{{ p.image.url }}" class="card-img-top" alt="{{ p.name }}">
             {% endif %}
             <div class="card-body d-flex flex-column">
-              <h5 class="card-title d-flex align-items-center gap-2">
+              <h5 class="card-title d-flex align-items-center gap-2 mb-1">
                 {{ p.name }}
                 {% if not p.is_in_stock %}
                   <span class="badge bg-secondary">Sold Out</span>
                 {% endif %}
               </h5>
-              <p class="mb-1 text-muted">
-                {{ p.roast_type|title }} • {{ p.weight_grams }}g • €{{ p.price }}
-              </p>
+              <p class="mb-1 text-muted">{{ p.roast_type|title }} · {{ p.weight_grams }}g · €{{ p.price }}</p>
               {% if p.tasting_notes %}
-                <p class="small text-secondary mb-2">{{ p.tasting_notes }}</p>
+                <p class="small text-secondary mb-2 text-truncate" title="{{ p.tasting_notes }}">{{ p.tasting_notes }}</p>
               {% endif %}
               <div class="d-flex align-items-center gap-2 mb-2">
                 <div class="text-warning small">
@@ -44,9 +42,9 @@ Browse and order ethically sourced Rwandan coffee beans from VV-Kaffee.
                   {% endif %}
                 </div>
               </div>
-               <a href="{{ p.get_absolute_url }}" class="mt-auto btn {% if not p.is_in_stock %}btn-secondary disabled{% else %}btn-primary{% endif %}">
-                 {% if not p.is_in_stock %}Sold out{% else %}View details{% endif %}
-               </a> 
+              <a href="{{ p.get_absolute_url }}" class="mt-auto btn {% if not p.is_in_stock %}btn-secondary disabled{% else %}btn-primary{% endif %}">
+                {% if not p.is_in_stock %}Sold out{% else %}View details{% endif %}
+              </a>
             </div>
           </div>
         </div>

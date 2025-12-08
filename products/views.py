@@ -10,8 +10,8 @@ from django.views.generic import DetailView, ListView
 from orders.models import OrderItem
 from reviews.forms import ProductReviewForm
 from reviews.models import ProductReview
-from .forms import ProductForm, ProductBatchForm
-from .models import Product, ProductBatch
+from .forms import ProductForm, ProductBatchForm, PackVariantForm
+from .models import Product, ProductBatch, PackVariant
 
 
 class ProductListView(ListView):
@@ -235,7 +235,7 @@ def staff_product_batch_add(request, product_id: int):
         if form.is_valid():
             batch = form.save(commit=False)
             batch.product = product
-            if batch.remaining_grams is None or batch.remaining_grams == 0:
+            if batch.remaining_grams is None:
                 batch.remaining_grams = batch.quantity_grams
             batch.save()
             messages.success(request, "Batch added.")
@@ -267,5 +267,46 @@ def staff_product_batch_edit(request, batch_id: int):
     return render(
         request,
         "products/batch_form.html",
+        {"form": form, "product": product, "is_create": False},
+    )
+
+
+@login_required
+@manager_required
+def pack_variant_add(request, product_id: int):
+    product = get_object_or_404(Product, pk=product_id)
+    if request.method == "POST":
+        form = PackVariantForm(request.POST)
+        if form.is_valid():
+            variant = form.save(commit=False)
+            variant.product = product
+            variant.save()
+            messages.success(request, "Variant added.")
+            return redirect("products:staff_product_detail", pk=product.id)
+    else:
+        form = PackVariantForm()
+    return render(
+        request,
+        "products/variant_form.html",
+        {"form": form, "product": product, "is_create": True},
+    )
+
+
+@login_required
+@manager_required
+def pack_variant_edit(request, variant_id: int):
+    variant = get_object_or_404(PackVariant, pk=variant_id)
+    product = variant.product
+    if request.method == "POST":
+        form = PackVariantForm(request.POST, instance=variant)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Variant updated.")
+            return redirect("products:staff_product_detail", pk=product.id)
+    else:
+        form = PackVariantForm(instance=variant)
+    return render(
+        request,
+        "products/variant_form.html",
         {"form": form, "product": product, "is_create": False},
     )

@@ -83,7 +83,8 @@ def checkout(request):
             items, subtotal, shipping, total = compute_summary(cart)
             for item in items:
                 try:
-                    product = Product.objects.get(slug=item["slug"], is_active=True)
+                    product_slug = item.get("product_slug") or item.get("slug")
+                    product = Product.objects.get(slug=product_slug, is_active=True)
                 except Product.DoesNotExist:
                     messages.warning(
                         request,
@@ -91,10 +92,12 @@ def checkout(request):
                     )
                     continue
 
+                name_snapshot = product.name
+
                 OrderItem.objects.create(
                     order=order,
                     product=product,
-                    product_name_snapshot=product.name,
+                    product_name_snapshot=name_snapshot,
                     unit_price=item["price"],
                     quantity=item["quantity"],
                     grind=item["grind"],
@@ -319,7 +322,7 @@ def _format_address(order):
     if country:
         parts.append(country)
 
-    return ", ".join(parts) if parts else "—"
+    return ", ".join(parts) if parts else "-"
 
 
 def is_fulfiller(user):
@@ -493,8 +496,8 @@ def _draw_footer(canvas, doc):
     canvas.setStrokeColor(colors.grey)
     canvas.line(2 * cm, 2.6 * cm, width - 2 * cm, 2.6 * cm)
     canvas.setFont("Helvetica-Oblique", 9)
-    canvas.drawString(2 * cm, 2.2 * cm, "Versöhnung und Vergebung Kaffee – Hopfauerstraße 33, 70563 Stuttgart, Germany")
-    canvas.drawString(2 * cm, 1.7 * cm, "Thank you for choosing Versöhnung und Vergebung Kaffee!")
+    canvas.drawString(2 * cm, 2.2 * cm, "Versoehnung und Vergebung Kaffee - Hopfauerstrasse 33, 70563 Stuttgart, Germany")
+    canvas.drawString(2 * cm, 1.7 * cm, "Thank you for choosing Versoehnung und Vergebung Kaffee!")
     canvas.restoreState()
 
 
@@ -633,12 +636,29 @@ def staff_order_list(request):
         F("unit_price") * F("quantity"),
         output_field=DecimalField(max_digits=12, decimal_places=2),
     )
-    revenue_by_product = list(
+    raw_revenue = list(
         OrderItem.objects.filter(order__in=revenue_orders)
         .values("product_name_snapshot")
         .annotate(amount=Sum(line_value))
         .order_by("-amount")
     )
+
+    # Group Maraba variants under a single MARABA bucket
+    grouped = {}
+    for row in raw_revenue:
+        name = row.get("product_name_snapshot") or ""
+        amount = row.get("amount") or Decimal("0.00")
+        label = name
+        if name.strip().upper().startswith("MARABA"):
+            label = "MARABA"
+        grouped[label] = grouped.get(label, Decimal("0.00")) + amount
+
+    revenue_by_product = [
+        {"product_name_snapshot": label, "amount": amt}
+        for label, amt in grouped.items()
+    ]
+    revenue_by_product.sort(key=lambda r: r.get("amount") or Decimal("0.00"), reverse=True)
+
     total_amount = revenue_total or Decimal("0.00")
     for row in revenue_by_product:
         amt = row.get("amount") or Decimal("0.00")

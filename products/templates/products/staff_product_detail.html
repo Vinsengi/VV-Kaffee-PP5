@@ -18,22 +18,22 @@
         <h5 class="mb-3">Details</h5>
         <dl class="row mb-0">
           <dt class="col-sm-4">Cost</dt>
-          <dd class="col-sm-8">€{{ product.cost_price }}</dd>
+          <dd class="col-sm-8">&euro;{{ product.cost_price }}</dd>
 
           <dt class="col-sm-4">Markup %</dt>
           <dd class="col-sm-8">{{ product.markup_percent }}%</dd>
 
           <dt class="col-sm-4">Price (cost + markup)</dt>
-          <dd class="col-sm-8">€{{ product.price }}</dd>
+          <dd class="col-sm-8">&euro;{{ product.price }}</dd>
 
           <dt class="col-sm-4">Total Kg (stock)</dt>
           <dd class="col-sm-8">{{ total_kg }}</dd>
 
           <dt class="col-sm-4">Total Cost (cost x kg)</dt>
-          <dd class="col-sm-8">€{{ total_cost }}</dd>
+          <dd class="col-sm-8">&euro;{{ total_cost }}</dd>
 
           <dt class="col-sm-4">Expected Revenue (price x kg)</dt>
-          <dd class="col-sm-8">€{{ total_revenue }}</dd>
+          <dd class="col-sm-8">&euro;{{ total_revenue }}</dd>
 
           <dt class="col-sm-4">Stock (units from batches)</dt>
           <dd class="col-sm-8">{{ batch_stock_units }}</dd>
@@ -78,10 +78,10 @@
                 {% for b in batches %}
                   <tr>
                     <td>{{ b.received_at|date:"Y-m-d H:i" }}</td>
-                    <td>{{ b.quantity_kg|floatformat:"-1" }}</td>
-                    <td>{{ b.remaining_kg|floatformat:"-1" }}</td>
-                    <td>€{{ b.unit_cost|floatformat:2 }}</td>
-                    <td class="text-muted small">{{ b.note|default:"—" }}</td>
+                    <td>{{ b.quantity_kg|floatformat:"-3" }}</td>
+                    <td>{{ b.remaining_kg|floatformat:"-3" }}</td>
+                    <td>&euro;{{ b.unit_cost|floatformat:2 }}</td>
+                    <td class="text-muted small">{{ b.note|default:"" }}</td>
                     <td class="text-end">
                       <a class="btn btn-sm btn-outline-primary" href="{% url 'products:staff_product_batch_edit' b.id %}">Adjust</a>
                     </td>

@@ -176,6 +176,13 @@ class Product(models.Model):
         kg = self.batch_remaining_kg
         return (price * kg).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
+    def total_remaining_grams(self) -> Decimal:
+        """Total grams left across all batches."""
+        return sum(
+            (Decimal(b.remaining_grams or 0) for b in getattr(self, "batches", []).all()),
+            Decimal("0"),
+        )
+
     def batch_stock_units(self) -> int:
         """Approximate units in stock based on batches and unit weight."""
         weight = Decimal(self.weight_grams or 1)
@@ -247,10 +254,38 @@ class ProductBatch(models.Model):
         return f"{self.product.name} batch ({self.remaining_grams}g remaining)"
 
     def save(self, *args, **kwargs):
-        if self.remaining_grams is None or self.remaining_grams == 0:
+        # Default remaining to full quantity only on initial creation when unspecified
+        if self.pk is None and self.remaining_grams is None:
             self.remaining_grams = self.quantity_grams
         super().save(*args, **kwargs)
         try:
             self.product.recalc_stock_from_batches()
         except Exception:
             pass
+
+
+class PackVariant(models.Model):
+    """Sellable pack size for a product (e.g., 250g bag, 1kg bag)."""
+
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="variants")
+    name = models.CharField(max_length=120)
+    sku = models.CharField(max_length=40, unique=True)
+    pack_weight_grams = models.PositiveIntegerField(default=250)
+    price = models.DecimalField(max_digits=8, decimal_places=2)
+    markup_percent = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["pack_weight_grams", "name"]
+
+    def __str__(self) -> str:
+        return f"{self.name} ({self.pack_weight_grams}g)"
+
+    @property
+    def available_units(self) -> int:
+        """Availability derived from product batches."""
+        total_grams = self.product.total_remaining_grams()
+        weight = Decimal(self.pack_weight_grams or 1)
+        if weight <= 0:
+            return 0
+        return int(total_grams // weight)

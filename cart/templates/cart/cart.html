@@ -33,14 +33,19 @@
                data-grind="{{ item.grind|default:'' }}"
                data-weight="{{ item.weight_grams|default:'' }}"
                data-sku="{{ item.sku|default:'' }}"
-               {% if item.slug %}data-url="{% url 'products:product_detail' item.slug %}"{% else %}data-url=""{% endif %}>
+                {% if item.product_slug %}data-url="{% url 'products:product_detail' item.product_slug %}"{% else %}data-url=""{% endif %}>
               <img src="{{ item.image_url }}"
                    alt="{{ item.name }}"
                    class="rounded shadow-sm"
                    style="width:48px;height:48px;object-fit:cover;cursor:zoom-in;">
             </a>
           </td>
-          <td class="fw-semibold">{{ item.name }}</td>
+          <td class="fw-semibold">
+            {{ item.name }}
+            {% if item.variant_label %}
+              <div class="small text-muted">{{ item.variant_label }}</div>
+            {% endif %}
+          </td>
           <td class="text-center">{{ item.grind|default:"—" }}</td>
           <td class="text-center">
             {% if item.weight_grams %}{{ item.weight_grams }}g{% else %}—{% endif %}
@@ -50,7 +55,7 @@
           <td class="text-end">€{{ item.line_total }}</td>
           <td class="text-end">
             <!-- your existing remove/update actions if any -->
-            <a href="{% url 'cart:remove' slug=item.slug %}" class="btn btn-sm btn-outline-danger">Remove</a>
+            <a href="{% url 'cart:remove' slug=item.key %}" class="btn btn-sm btn-outline-danger">Remove</a>
           </td>
         </tr>
         {% endfor %}

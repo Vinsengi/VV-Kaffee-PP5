@@ -1,0 +1,36 @@
+# Quick verification checklist (no changes)
+
+## Registration
+1) Visit /accounts/signup/ and create a new user
+2) Confirm user is created and logged in (or redirected appropriately)
+
+## Emails (pending + paid)
+1) Place a test order via checkout
+2) Verify 'pending' email is sent when order created
+3) Mark order paid (thank-you page reconcile or Stripe webhook)
+4) Verify 'paid' email + internal notification are sent
+
+## CRUD (Products/Orders/Reviews)
+- Products: create/edit/delete via staff UI; confirm DB updates
+- Orders: view/update/delete via staff UI; confirm DB updates
+- Reviews: as a purchaser, submit a review on product page; confirm it renders on FE
+
+## Validation
+- Run HTML validator on: home, product detail, cart, checkout, orders list
+- Run flake8/ruff; fix any warnings
+
+## SEO
+- Check meta description tags on home/product pages
+- Confirm robots.txt and sitemap.xml served in prod with canonical URLs
+- Ensure external links use rel='noopener noreferrer'
+- Confirm custom 404 page displays (DEBUG off)
+
+## Navigation/UX
+- Home link lands on home page (no fulfillment redirect)
+- Nav distinguishes staff/customer links; check responsive layout for overflow
+
+## Docs/Testing
+- Update README with business model overview, email behavior, testing evidence
+- Add ERD image/link; add marketing strategy (FB page/mockup link if required)
+- Add/run automated tests: registration, checkout email path, CRUD, review display
+

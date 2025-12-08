@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Product, ProductBatch
+from .models import Product, ProductBatch, PackVariant
 
 
 class ProductForm(forms.ModelForm):
@@ -79,3 +79,9 @@ class ProductBatchForm(forms.ModelForm):
         elif rem > qty:
             raise forms.ValidationError("Remaining grams cannot exceed received grams.")
         return cleaned
+
+
+class PackVariantForm(forms.ModelForm):
+    class Meta:
+        model = PackVariant
+        fields = ["name", "sku", "pack_weight_grams", "price", "markup_percent", "is_active"]

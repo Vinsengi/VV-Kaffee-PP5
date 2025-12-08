@@ -2,7 +2,7 @@
 {% load humanize %}
 {% block content %}
   <nav class="mb-3">
-    <a class="text-decoration-none" href="{% url 'products:product_list' %}">← Back to shop</a>
+    <a class="text-decoration-none" href="{% url 'products:product_list' %}">&#8592; Back to shop</a>
   </nav>
 
   <div class="row g-4">
@@ -18,10 +18,8 @@
 
     <div class="col-md-6">
       <h1 class="h3">{{ product.name }}</h1>
-      <p class="text-muted mb-1">
-        {{ product.roast_type|title }} • {{ product.weight_grams }}g
-      </p>
-      <p class="h4 mb-3">€{{ product.price|floatformat:2|intcomma }}</p>
+      <p class="text-muted mb-1">{{ product.roast_type|title }}</p>
+      <p class="h4 mb-3" id="priceDisplay" data-base-price="{{ product.price|floatformat:2 }}">?{{ product.price|floatformat:2|intcomma }}</p>
 
       {% if product.tasting_notes %}
         <p class="mt-2"><strong>Tasting notes:</strong> {{ product.tasting_notes }}</p>
