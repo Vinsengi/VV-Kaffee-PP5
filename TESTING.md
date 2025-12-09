@@ -36,7 +36,7 @@ Testing was conducted in both:
 
 ## 🧱 Manual Testing Details
 
-### 1️⃣ CRUD Functionality
+### 1️⃣ CRUD Functionalities
 
 | Action | Steps | Expected Result | Actual Result | Status |
 |--------|-------|-----------------|----------------|--------|
