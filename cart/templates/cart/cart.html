@@ -91,13 +91,18 @@
 </div>
 
 <!-- Reusable modal (one per page) -->
-<div class="modal fade" id="cartItemModal" tabindex="-1" aria-labelledby="ciTitle" aria-hidden="true">
+<div class="modal fade" id="cartItemModal" tabindex="-1" aria-labelledby="ciTitle" aria-hidden="true" role="dialog" aria-modal="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
     <div class="modal-content overflow-hidden">
       <div class="modal-body p-0">
         <div class="row g-0">
           <div class="col-md-6">
-            <img id="ciImage" src="" alt="" class="w-100 h-100" style="object-fit:cover; min-height: 320px;">
+            <img
+              id="ciImage"
+              src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
+              alt="Product image"
+              class="w-100 h-100"
+              style="object-fit:cover; min-height: 320px;">
           </div>
           <div class="col-md-6">
             <div class="p-4">
@@ -125,7 +130,7 @@
     if (!a) return;
 
     const name   = a.dataset.name || "Item";
-    const image  = a.dataset.image || "";
+    const image  = a.dataset.image || "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
     const price  = a.dataset.price || "";
     const qty    = a.dataset.qty || "";
     const grind  = a.dataset.grind || "";

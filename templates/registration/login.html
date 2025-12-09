@@ -22,6 +22,11 @@
             <div class="mb-3">
               <label for="id_password" class="form-label">Password</label>
               {{ form.password|add_class:"form-control" }}
+              {% if form.password.help_text %}
+                <div id="{{ form.password.id_for_label }}_helptext" class="form-text text-muted">
+                  {{ form.password.help_text|safe }}
+                </div>
+              {% endif %}
               {% if form.password.errors %}
                 <div class="text-danger small">{{ form.password.errors }}</div>
               {% endif %}
