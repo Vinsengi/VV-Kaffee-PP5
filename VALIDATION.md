@@ -18,31 +18,31 @@ All checks reference the latest deployed version on Heroku:
 **Pages Tested:**
 - Home page (`/`)
 
-    ![Home page HTML validation – passed](./static/images/validation/html_validation/home_page_valid.png)
+    ![Home page HTML validation – passed](./static/images/testing_images/home_test_validated.png)
 
 - Products list (`/products/`)
 
-    ![Products list HTML validation – passed](./static/images/validation/html_validation/products_page_valid.png)
+    ![Products list HTML validation – passed](./static/images/testing_images/shop_page_validation.png)
 
 - Product detail (`/products/<slug>/`)
 
-    ![Product detail HTML validation – passed](./static/images/validation/html_validation/product_detail_valid.png)
+    ![Product detail HTML validation – passed](./static/images/testing_images/product_details_validated.png)
 
 - Cart (`/cart/`)
 
-    ![Cart page HTML validation – passed](./static/images/validation/html_validation/cart_page_valid.png)
+    ![Cart page HTML validation – passed](./static/images/testing_images/cart_validated.png)
 
 - Checkout (`/checkout/`)
 
-    ![Checkout page HTML validation – passed](./static/images/validation/html_validation/checkout_page_valid.png)
+    ![Checkout page HTML validation – passed](./static/images/testing_images/checkout_validated.png)
 
 - User profile (`/profiles/`)
 
-    ![Profile page HTML validation – passed](./static/images/validation/html_validation/profile_page_valid.png)
+    ![Profile page HTML validation – passed](./static/images/testing_images/account_validated.png)
 
 - Login (`/accounts/login/`)
 
-    ![Login page HTML validation – passed](./static/images/validation/html_validation/login_page_valid.png)
+    ![Login page HTML validation – passed](./static/images/testing_images/login_validated.png)
 
 **Result:** ✅ **Passed**
 
@@ -58,8 +58,8 @@ All checks reference the latest deployed version on Heroku:
 
 **File Validated:**
 - `/static/css/site.css`
-
-    ![Site stylesheet validated](./static/images/validation/css_validation/site_css_validated.png)
+    ![Site stylesheet validated](./static/images/testing_images/css_file_validation.png)
+    ![Site stylesheet validated](./static/images/testing_images/css_shop_validation.png)
 
 **Result:** ✅ **No errors found**
 
@@ -74,23 +74,20 @@ All checks reference the latest deployed version on Heroku:
 
 - Home page accessibility
 
-    ![Home page Lighthouse results](./static/images/validation/lighthouse_validation/home_page_lighthouse.png)
+    ![Home page Lighthouse results](./static/images/testing_images/lighthouse_home.png)
 
-- Products list accessibility
+- Sign up
 
-    ![Products list Lighthouse results](./static/images/validation/lighthouse_validation/products_page_lighthouse.png)
+    ![sign up Lighthouse results](./static/images/testing_images/lighthouse_check-pass.png)
 
-- Product detail accessibility
+- Shop accessibility
 
-    ![Product detail Lighthouse results](./static/images/validation/lighthouse_validation/product_detail_lighthouse.png)
+    ![Shop Lighthouse results](./static/images/testing_images/lighthouse_shop.png)
 
-- Checkout accessibility
+- Product accessibility
 
-    ![Checkout Lighthouse results](./static/images/validation/lighthouse_validation/checkout_page_lighthouse.png)
+    ![CProduct Lighthouse results](./static/images/testing_images/lighthouse_products_validated.png)
 
-- Profile accessibility (logged-in users)
-
-    ![Profile Lighthouse results](./static/images/validation/lighthouse_validation/profile_page_lighthouse.png)
 
 ♿ Accessibility
 

@@ -3,6 +3,8 @@
 
 - [Live Application](https://vv-kaffee-5b7b3eb05052.herokuapp.com/)
 - [GitHub Repository](https://github.com/Vinsengi/VV-Kaffee)
+- [Testing summary](TESTING.md)
+- [Validation.md](VALIDATION.md)
 ![Am I responsive Images](./static/images/readme_images/amiresponsive.png)
 
 ---
