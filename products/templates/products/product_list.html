@@ -1,4 +1,9 @@
 {% extends "base.html" %}
+{% block title %}Shop — VV-Kaffee{% endblock %}
+{% block meta_description %}
+Browse and order ethically sourced Rwandan coffee beans from VV-Kaffee.
+{% endblock %}
+
 {% block content %}
   <h1 class="mb-4">Shop Beans</h1>
 
@@ -6,19 +11,40 @@
     <div class="row g-4">
       {% for p in products %}
         <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-          <div class="card h-100">
+          <div class="card h-100 {% if not p.is_in_stock %}border-0 bg-light{% endif %}" style="{% if not p.is_in_stock %}opacity:0.55;{% endif %}">
             {% if p.image %}
               <img src="{{ p.image.url }}" class="card-img-top" alt="{{ p.name }}">
             {% endif %}
             <div class="card-body d-flex flex-column">
-              <h5 class="card-title">{{ p.name }}</h5>
-              <p class="mb-1 text-muted">
-                {{ p.roast_type|title }} • {{ p.weight_grams }}g • €{{ p.price }}
-              </p>
+              <h5 class="card-title d-flex align-items-center gap-2 mb-1">
+                {{ p.name }}
+                {% if not p.is_in_stock %}
+                  <span class="badge bg-secondary">Sold Out</span>
+                {% endif %}
+              </h5>
+              <p class="mb-1 text-muted">{{ p.roast_type|title }} · {{ p.weight_grams }}g · €{{ p.price }}</p>
               {% if p.tasting_notes %}
-                <p class="small text-secondary mb-2">{{ p.tasting_notes }}</p>
+                <p class="small text-secondary mb-2 text-truncate" title="{{ p.tasting_notes }}">{{ p.tasting_notes }}</p>
               {% endif %}
-               <a href="{{ p.get_absolute_url }}" class="mt-auto btn btn-primary">View details</a> 
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="text-warning small">
+                  {% with avg=p.average_rating|default:0 %}
+                    {% for i in "12345"|make_list %}
+                      <span class="{% if forloop.counter <= avg %}text-warning{% else %}text-secondary{% endif %}">★</span>
+                    {% endfor %}
+                  {% endwith %}
+                </div>
+                <div class="small text-muted">
+                  {% if p.review_count and p.average_rating is not None %}
+                    {{ p.average_rating|floatformat:1 }}/5 ({{ p.review_count }})
+                  {% else %}
+                    No reviews yet
+                  {% endif %}
+                </div>
+              </div>
+              <a href="{{ p.get_absolute_url }}" class="mt-auto btn {% if not p.is_in_stock %}btn-secondary disabled{% else %}btn-primary{% endif %}">
+                {% if not p.is_in_stock %}Sold out{% else %}View details{% endif %}
+              </a>
             </div>
           </div>
         </div>

@@ -31,14 +31,19 @@ def compute_summary(cart: dict):
     items = []
     subtotal = Decimal("0.00")
 
-    for slug, item in cart.items():
+    for slug_key, item in cart.items():
         price = Decimal(item["price"])
         qty = int(item.get("quantity", 1))
         line_total = quantize(price * qty)
         subtotal += line_total
 
+        key = item.get("key") or slug_key
+        product_slug = item.get("product_slug") or slug_key
+
         items.append({
-            "slug": slug,
+            "key": key,
+            "slug": key,  # backwards compatibility for templates using slug
+            "product_slug": product_slug,
             "name": item["name"],
             "sku": item.get("sku", ""),
             "grind": item.get("grind", "whole"),
@@ -48,6 +53,7 @@ def compute_summary(cart: dict):
             "line_total": line_total,
             "image_url": item.get("image_url", ""),
             "weight_grams": item.get("weight_grams", 0),
+            "variant_label": item.get("variant_label") or "",
         })
 
     subtotal = quantize(subtotal)

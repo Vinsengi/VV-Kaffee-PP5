@@ -1,0 +1,19 @@
+<p>A new paid order just arrived at {{ site_name }}.</p>
+<p>
+  <strong>Order:</strong> #{{ order.reference }}<br>
+  <strong>Customer:</strong> {{ order.full_name }} ({{ order.email }})<br>
+  <strong>Ship to:</strong> {{ order.street }} {{ order.house_number }}, {{ order.postal_code }} {{ order.city }}, {{ order.country }}<br>
+  <strong>Total:</strong> €{{ order.total }}
+</p>
+<p><strong>Items:</strong></p>
+<ul>
+  {% for item in order.items.all %}
+    <li>{{ item.quantity }} × {{ item.product_name_snapshot }} ({{ item.grind|default:"whole beans" }}) at €{{ item.unit_price }} each</li>
+  {% endfor %}
+</ul>
+<p>
+  <a href="{{ site_url }}/admin/orders/order/{{ order.id }}/change/" style="display:inline-block;padding:10px 16px;background:#6F4E37;color:#fff;text-decoration:none;border-radius:4px;font-weight:bold;">Open in Django admin</a>
+</p>
+<p>
+  <a href="{{ site_url }}{% url 'orders:order_picklist' order.id %}" style="display:inline-block;padding:10px 16px;background:#eee;color:#333;text-decoration:none;border-radius:4px;font-weight:bold;">View picklist</a>
+</p>

@@ -1,8 +1,11 @@
+
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render, redirect
 from django import forms
 from orders.models import Order, OrderItem
 from products.models import Product
+from products.views import ProductDetailView
 from .forms import ProductReviewForm
 from .models import ProductReview, ExperienceFeedback
 
@@ -21,31 +24,35 @@ def order_review(request, order_id):
 
 @login_required
 def create_or_update_review(request, product_id):
-    product = get_object_or_404(Product, pk=product_id)
+    product = get_object_or_404(Product, pk=product_id, is_active=True)
 
     # ensure user actually purchased this product
-    purchased = OrderItem.objects.filter(order__user=request.user, product=product,
-                                         order__status__in=["paid","fulfilled","refunded"]).exists()
+    purchased = OrderItem.objects.filter(
+        order__user=request.user,
+        product=product,
+        order__status__in=["paid", "fulfilled", "refunded"],
+    ).exists()
     if not purchased:
-        return redirect("profiles:account_dashboard")
-
-    try:
-        instance = ProductReview.objects.get(user=request.user, product=product)
-    except ProductReview.DoesNotExist:
-        instance = None
+        messages.error(request, "You can only review products you have purchased.")
+        return redirect(product.get_absolute_url())
 
     if request.method == "POST":
-        form = ProductReviewForm(request.POST, instance=instance)
+        form = ProductReviewForm(request.POST)
         if form.is_valid():
             review = form.save(commit=False)
             review.user = request.user
             review.product = product
             review.save()
-            return redirect("products:product_detail", slug=product.slug)
-    else:
-        form = ProductReviewForm(instance=instance)
+            messages.success(request, "Thanks for sharing your review!")
+            return redirect(f"{product.get_absolute_url()}?review_submitted=1")
 
-    return render(request, "reviews/review_form.html", {"product": product, "form": form})
+        detail_view = ProductDetailView()
+        detail_view.request = request
+        detail_view.object = product
+        ctx = detail_view.get_context_data(review_form=form)
+        return render(request, detail_view.template_name, ctx)
+
+    return redirect(product.get_absolute_url())
 
 
 @login_required
@@ -72,7 +79,8 @@ def experience_review(request, order_id):
             fb.user = request.user
             fb.order = order
             fb.save()
-            return redirect("orders:thank_you", order_id=order.id)
+            messages.success(request, "Thanks for rating your experience!")
+            return redirect("orders:my_order_detail", order_id=order.id)
     else:
         form = ExpForm(instance=instance)
 

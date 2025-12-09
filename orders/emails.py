@@ -1,5 +1,6 @@
 # orders/emails.py
 from io import BytesIO
+import logging
 from decimal import Decimal
 from django.conf import settings
 from django.template.loader import render_to_string
@@ -10,6 +11,8 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, Tabl
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import cm
 import os
+
+logger = logging.getLogger(__name__)
 
 
 def _fmt_eur(value) -> str:
@@ -155,3 +158,44 @@ def send_order_paid_email(order):
         pdf_filename=f"order_{order.id}.pdf",
         pdf_bytes=pdf,
     )
+
+
+def send_order_paid_internal_email(order, recipients):
+    if not recipients:
+        return 0
+
+    ctx = {
+        "order": order,
+        "site_name": getattr(settings, "SITE_NAME", "VV Kaffee"),
+        "site_url": getattr(settings, "SITE_URL", "http://127.0.0.1:8000"),
+    }
+    text_body = render_to_string("emails/order_paid_internal.txt", ctx)
+    html_body = render_to_string("emails/order_paid_internal.html", ctx)
+
+    msg = EmailMultiAlternatives(
+        subject=f"New paid order #{order.id}",
+        body=text_body,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=recipients,
+        reply_to=[settings.DEFAULT_FROM_EMAIL],
+    )
+    msg.attach_alternative(html_body, "text/html")
+    return msg.send(fail_silently=False)
+
+
+def send_order_paid_notifications(order):
+    """Send customer confirmation plus internal alert for paid orders."""
+    try:
+        send_order_paid_email(order)
+    except Exception:
+        logger.exception("Customer paid email failed for order %s", order.id)
+
+    internal_recipients = getattr(settings, "ORDER_NOTIFICATION_EMAILS", [])
+    if not internal_recipients:
+        logger.info("No ORDER_NOTIFICATION_EMAILS configured; skipping internal notice for %s", order.id)
+        return
+
+    try:
+        send_order_paid_internal_email(order, internal_recipients)
+    except Exception:
+        logger.exception("Internal paid email failed for order %s", order.id)

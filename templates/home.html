@@ -28,7 +28,7 @@
       {% csrf_token %}
       <div class="col-auto">
         <label for="newsletter-email" class="form-label visually-hidden">Email address for newsletter</label>
-        <input type="email" id="newsletter-email" name="email" class="form-control" placeholder="Your email for updates" required>
+        <input type="email" id="newsletter-email" name="email" class="form-control" placeholder="Your email for updates" required autocomplete="off">
       </div>
       <div class="col-auto">
         <button type="submit" class="btn btn-primary">Subscribe</button>

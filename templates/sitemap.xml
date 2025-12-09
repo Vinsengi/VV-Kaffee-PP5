@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <url>
+    <loc>https://vv-kaffee-5b7b3eb05052.herokuapp.com/</loc>
+  </url>
+  <url>
+    <loc>https://vv-kaffee-5b7b3eb05052.herokuapp.com/products/</loc>
+  </url>
+  <url>
+    <loc>https://vv-kaffee-5b7b3eb05052.herokuapp.com/accounts/login/</loc>
+  </url>
+  <!-- add key URLs -->
+</urlset>

@@ -1,5 +1,6 @@
 # versohnung_und_vergebung_kaffee/middleware/fulfillment_redirect.py
 from django.shortcuts import redirect
+from versohnung_und_vergebung_kaffee.staff_mode import get_staff_mode, is_worker
 
 
 class FulfillmentPostLoginMiddleware:
@@ -13,16 +14,7 @@ class FulfillmentPostLoginMiddleware:
     def __call__(self, request):
         response = self.get_response(request)
 
-        try:
-            user = request.user
-            if (
-                user.is_authenticated
-                and request.method == "GET"
-                and request.path == "/"
-                and user.groups.filter(name="Fulfillment Department").exists()
-            ):
-                return redirect("/staff/fulfillment/")
-        except Exception:
-            pass
+        # Previously redirected fulfillment staff hitting "/" to the fulfillment queue.
+        # Allow the home page to load normally so "Home" always goes to home.html.
 
         return response

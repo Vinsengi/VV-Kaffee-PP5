@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <h1 class="h3 mb-0">Products</h1>
+  <div class="d-flex gap-2">
+    {% if perms.products.add_product %}
+      <a class="btn btn-primary" href="{% url 'products:staff_product_create' %}">New Product</a>
+    {% endif %}
+    <a class="btn btn-outline-secondary" href="{% url 'orders:staff_order_list' %}">Go to Orders</a>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table align-middle table-striped">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>SKU</th>
+            <th>Cost</th>
+            <th>Markup %</th>
+            <th>Price</th>
+            <th>Total Kg</th>
+            <th>Total Cost</th>
+            <th>Expected Revenue</th>
+            <th>Stock (units from batches)</th>
+            <th>Status</th>
+            <th style="width: 200px;"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for product in products %}
+          <tr>
+            <td class="fw-semibold">{{ product.name }}</td>
+            <td class="text-muted">{{ product.sku }}</td>
+            <td>€{{ product.cost_price }}</td>
+            <td>{{ product.markup_percent }}%</td>
+            <td>€{{ product.price }}</td>
+            <td>{{ product.total_kg|floatformat:0 }}</td>
+            <td>€{{ product.total_cost }}</td>
+            <td>€{{ product.total_revenue }}</td>
+            <td>{{ product.batch_stock_units|default:0 }}</td>
+            <td>
+              {% if product.is_active %}
+                <span class="badge text-bg-success">Active</span>
+              {% else %}
+                <span class="badge text-bg-secondary">Hidden</span>
+              {% endif %}
+            </td>
+            <td class="text-end">
+              <a class="btn btn-sm btn-outline-primary" href="{% url 'products:staff_product_detail' product.pk %}">View</a>
+              <a class="btn btn-sm btn-primary" href="{% url 'products:staff_product_update' product.pk %}">Edit</a>
+              <a class="btn btn-sm btn-outline-danger" href="{% url 'products:staff_product_delete' product.pk %}">Delete</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="11" class="text-center text-secondary">No products yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

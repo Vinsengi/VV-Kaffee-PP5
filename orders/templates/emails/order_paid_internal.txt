@@ -1,0 +1,14 @@
+A new paid order just arrived at {{ site_name }}.
+
+Order: #{{ order.reference }}
+Customer: {{ order.full_name }} ({{ order.email }})
+Ship to: {{ order.street }} {{ order.house_number }}, {{ order.postal_code }} {{ order.city }}, {{ order.country }}
+Total: €{{ order.total }}
+
+Items:
+{% for item in order.items.all %}
+- {{ item.quantity }} × {{ item.product_name_snapshot }} ({{ item.grind|default:"whole beans" }}) at €{{ item.unit_price }} each
+{% endfor %}
+
+View order in admin: {{ site_url }}/admin/orders/order/{{ order.id }}/change/
+Pick/fulfill in app: {{ site_url }}{% url 'orders:order_picklist' order.id %}

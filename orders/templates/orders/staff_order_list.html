@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <h1 class="h3 mb-0">Orders</h1>
+  <a class="btn btn-outline-secondary" href="{% url 'products:staff_product_list' %}">Go to Products</a>
+</div>
+
+<!-- Filters -->
+<form method="get" class="card shadow-sm mb-3">
+  <div class="card-body row gy-2 gx-3 align-items-end">
+    <div class="col-md-3">
+      <label class="form-label small text-uppercase text-muted">Customer / Email</label>
+      <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Search name or email" list="customerSuggestions">
+      <datalist id="customerSuggestions">
+        {% for name in customer_suggestions %}
+          {% if name %}<option value="{{ name }}">{{ name }}</option>{% endif %}
+        {% endfor %}
+        {% for email in email_suggestions %}
+          {% if email %}<option value="{{ email }}">{{ email }}</option>{% endif %}
+        {% endfor %}
+      </datalist>
+    </div>
+    <div class="col-md-2">
+      <label class="form-label small text-uppercase text-muted">Product</label>
+      <input type="text" name="product" value="{{ product_query }}" class="form-control" placeholder="Search product" list="productSuggestions">
+      <datalist id="productSuggestions">
+        {% for prod in product_suggestions %}
+          {% if prod %}<option value="{{ prod }}">{{ prod }}</option>{% endif %}
+        {% endfor %}
+      </datalist>
+    </div>
+    <div class="col-md-2">
+      <label class="form-label small text-uppercase text-muted">Status</label>
+      <select name="status" class="form-select">
+        <option value="">All</option>
+        {% for code,label in status_choices %}
+          <option value="{{ code }}" {% if status_filter == code %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2">
+      <label class="form-label small text-uppercase text-muted">From</label>
+      <input type="date" name="date_from" value="{{ date_from }}" class="form-control">
+    </div>
+    <div class="col-md-2">
+      <label class="form-label small text-uppercase text-muted">To</label>
+      <input type="date" name="date_to" value="{{ date_to }}" class="form-control">
+    </div>
+    <div class="col-md-2 d-flex gap-2 align-items-center justify-content-center">
+      <button class="btn btn-primary w-100" type="submit">Filter</button>
+      <a class="btn btn-outline-secondary" href="{% url 'orders:staff_order_list' %}">Reset</a>
+    </div>
+  </div>
+</form>
+
+<!-- Revenue dashboard -->
+<div class="row g-3 mb-3">
+  <div class="col-md-4">
+    <div class="card shadow-sm h-100 border-0" style="background: linear-gradient(135deg, #1f6feb, #0ea5e9); color: #f8fafc;">
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <div class="text-uppercase small fw-semibold opacity-75">Total Revenue (paid + fulfilled)</div>
+          <span class="badge bg-light text-dark">Live</span>
+        </div>
+        <div class="display-6 fw-bold">€{{ revenue_total|default:"0.00" }}</div>
+        <div class="small opacity-75">Updated with current filters</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-8">
+    <div class="card shadow-sm h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="text-muted text-uppercase small fw-semibold mb-0">Top products by revenue</div>
+          <span class="badge bg-primary-subtle text-primary">Sorted desc</span>
+        </div>
+        {% if revenue_by_product %}
+          <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th style="width: 200px;">Performance</th>
+                  <th class="text-end">Revenue</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in revenue_by_product %}
+                  <tr {% if forloop.first %}class="table-primary-subtle"{% endif %}>
+                    <td>
+                      {{ row.product_name_snapshot }}
+                      {% if forloop.first %}<span class="badge bg-warning text-dark ms-2">Top</span>{% endif %}
+                    </td>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="progress flex-grow-1" style="height: 10px;">
+                          <div class="progress-bar bg-success" role="progressbar" style="width: {{ row.percent }}%;" aria-valuenow="{{ row.percent }}" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        <span class="small text-muted">{{ row.percent }}%</span>
+                      </div>
+                    </td>
+                    <td class="text-end">€{{ row.amount|default:"0.00" }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="text-secondary small">No paid/fulfilled orders yet.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table align-middle table-striped">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Customer</th>
+            <th>Products</th>
+            <th>Status</th>
+            <th>Total</th>
+            <th>Date</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for order in orders %}
+          <tr>
+            <td>#{{ order.id }}</td>
+            <td>{{ order.full_name }}</td>
+            <td>
+              {% if order.items.all %}
+                {% for item in order.items.all %}
+                  {% if not forloop.first %}, {% endif %}{{ item.product_name_snapshot }}
+                {% endfor %}
+              {% else %}
+                <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+            <td><span class="badge text-bg-info text-uppercase">{{ order.get_status_display }}</span></td>
+            <td>€{{ order.total }}</td>
+            <td>{{ order.created_at|date:"Y-m-d H:i" }}</td>
+            <td class="text-end">
+              <a class="btn btn-sm btn-outline-primary" href="{% url 'orders:staff_order_detail' order.pk %}">View</a>
+              <a class="btn btn-sm btn-primary" href="{% url 'orders:staff_order_update' order.pk %}">Update</a>
+              <a class="btn btn-sm btn-outline-danger" href="{% url 'orders:staff_order_delete' order.pk %}">Delete</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7" class="text-center text-secondary">No orders yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

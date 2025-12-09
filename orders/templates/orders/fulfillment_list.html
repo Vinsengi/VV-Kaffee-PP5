@@ -1,14 +1,20 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="container py-4">
-  <h2 class="mb-3">Paid Orders – Fulfillment</h2>
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h2 class="mb-0">Paid Orders – Fulfillment</h2>
+    <a href="{% url 'orders:fulfillment_recent' %}" class="btn btn-outline-secondary">View Recently Fulfilled Orders</a>
+  </div>
 
   <form class="row g-2 mb-3" method="get">
     <div class="col-auto">
       <input name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Search name or email">
     </div>
     <div class="col-auto">
-      <button class="btn btn-outline-primary">Search</button>
+      <button class="btn btn-primary">Search</button>
+    </div>
+    <div class="col-auto">
+      <a class="btn btn-outline-secondary" href="{% url 'orders:fulfillment_paid_orders' %}">Reset</a>
     </div>
   </form>
 
@@ -20,37 +26,47 @@
           <th>Customer</th>
           <th>Email</th>
           <th>Items</th>
-          <th>Total €</th>
+          <th>Products</th>
+          <th>Total &euro;</th>
           <th>Placed</th>
-          <th>Picklist</th>
+          <th class="text-end">Actions</th>
         </tr>
       </thead>
       <tbody>
         {% for o in orders %}
         <tr>
           <td>#{{ o.id }}</td>
-          <td>{{ o.full_name|default:"—" }}</td>
-          <td>{{ o.email|default:"—" }}</td>
-          <td>{{ o.items.count }}</td>
-          <td>€{{ o.total|floatformat:2 }}</td>
-          <td>{{ o.created_at|date:"Y-m-d H:i" }}</td>
+          <td>{{ o.full_name|default:"" }}</td>
+          <td>{{ o.email|default:"" }}</td>
+          <td>{{ o.total_quantity|default:o.items.count }}</td>
           <td>
-          <a class="btn btn-sm btn-outline-secondary" target="_blank" href="{% url 'orders:order_picklist' o.id %}">View</a>
-          <a class="btn btn-sm btn-primary" target="_blank" href="{% url 'orders:order_picklist_pdf' o.id %}">PDF</a>
-          <a href="{% url 'orders:fulfillment_recent' %}" class="btn btn-outline-secondary">View Recently Fulfilled Orders</a>
-
-
-          {% if o.status in 'pending_fulfillment paid' %}
-          <form method="post" action="{% url 'orders:mark_order_fulfilled' o.id %}" style="display:inline;">
-            {% csrf_token %}
-            <button class="btn btn-sm btn-success" type="submit">Mark Fulfilled</button>
-          </form>
-          {% endif %}
-        </td>
-
+            {% if o.items.all %}
+              {% for item in o.items.all %}
+                {% if not forloop.first %}, {% endif %}{{ item.product_name_snapshot }}
+              {% endfor %}
+            {% else %}
+              <span class="text-muted">—</span>
+            {% endif %}
+          </td>
+          <td>&euro;{{ o.total|floatformat:2 }}</td>
+          <td>{{ o.created_at|date:"Y-m-d H:i" }}</td>
+          <td class="text-end">
+            <div class="btn-group btn-group-sm" role="group">
+              <a class="btn btn-outline-secondary" target="_blank" href="{% url 'orders:order_picklist' o.id %}">View</a>
+              <a class="btn btn-primary" target="_blank" href="{% url 'orders:order_picklist_pdf' o.id %}">PDF</a>
+            </div>
+            {% if o.status == "pending_fulfillment" or o.status == "paid" %}
+            <form method="post" action="{% url 'orders:mark_order_fulfilled' o.id %}" class="d-inline">
+              {% csrf_token %}
+              <button class="btn btn-sm btn-success mt-1" type="submit">Mark Fulfilled</button>
+            </form>
+            {% else %}
+              <span class="badge bg-success mt-1">Fulfilled</span>
+            {% endif %}
+          </td>
         </tr>
         {% empty %}
-        <tr><td colspan="7" class="text-muted text-center">No paid orders.</td></tr>
+        <tr><td colspan="8" class="text-muted text-center">No paid orders.</td></tr>
         {% endfor %}
       </tbody>
     </table>

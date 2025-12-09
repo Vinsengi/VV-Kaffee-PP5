@@ -15,7 +15,7 @@ from django.urls import reverse
 
 from products.models import Product
 from cart.utils import cart_from_session, compute_summary
-from .forms import CheckoutForm
+from .forms import CheckoutForm, StaffOrderForm, OrderCustomerEditForm
 from .models import Order, OrderItem
 from django.contrib.admin.views.decorators import staff_member_required
 
@@ -39,11 +39,11 @@ from django.contrib.auth.decorators import login_required, permission_required, 
 from django.http import HttpResponseForbidden, Http404
 
 from django.utils import timezone
-from django.db.models import F
+from django.db.models import F, Sum, DecimalField, ExpressionWrapper, Q
 from django.views.decorators.http import require_POST
 from datetime import timedelta
 from .emails import send_order_pending_email
-from .emails import send_order_paid_email
+from .emails import send_order_paid_notifications
 
 logger = logging.getLogger(__name__)
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -83,7 +83,8 @@ def checkout(request):
             items, subtotal, shipping, total = compute_summary(cart)
             for item in items:
                 try:
-                    product = Product.objects.get(slug=item["slug"], is_active=True)
+                    product_slug = item.get("product_slug") or item.get("slug")
+                    product = Product.objects.get(slug=product_slug, is_active=True)
                 except Product.DoesNotExist:
                     messages.warning(
                         request,
@@ -91,10 +92,12 @@ def checkout(request):
                     )
                     continue
 
+                name_snapshot = product.name
+
                 OrderItem.objects.create(
                     order=order,
                     product=product,
-                    product_name_snapshot=product.name,
+                    product_name_snapshot=name_snapshot,
                     unit_price=item["price"],
                     quantity=item["quantity"],
                     grind=item["grind"],
@@ -237,10 +240,7 @@ def thank_you(request, order_id: int):
                     logger.warning("Order %s reconciled to PAID on thank_you", order.id)
 
                     # ✅ send paid email here too
-                    try:
-                        send_order_paid_email(order)
-                    except Exception:
-                        logger.exception("Paid email (thank_you reconcile) failed for order %s", order.id)
+                    send_order_paid_notifications(order)
             except Exception:
                 logger.exception("Thank_you reconcile error for order %s", order.id)
 
@@ -297,10 +297,7 @@ def stripe_webhook(request):
             order.save(update_fields=["status"])
             logger.warning("Order %s marked PAID and stock adjusted", order.id)
             
-            try:
-                send_order_paid_email(order)
-            except Exception:
-                logger.exception("Paid email failed for order %s", order.id)
+            send_order_paid_notifications(order)
 
         return HttpResponse(status=200)
 
@@ -325,12 +322,15 @@ def _format_address(order):
     if country:
         parts.append(country)
 
-    return ", ".join(parts) if parts else "—"
+    return ", ".join(parts) if parts else "-"
 
 
 def is_fulfiller(user):
     # member of the “Fulfillment Department” group
     return user.is_authenticated and user.groups.filter(name="Fulfillment Department").exists()
+
+
+staff_required = user_passes_test(lambda u: u.is_staff)
 
 
 @login_required
@@ -496,8 +496,8 @@ def _draw_footer(canvas, doc):
     canvas.setStrokeColor(colors.grey)
     canvas.line(2 * cm, 2.6 * cm, width - 2 * cm, 2.6 * cm)
     canvas.setFont("Helvetica-Oblique", 9)
-    canvas.drawString(2 * cm, 2.2 * cm, "Versöhnung und Vergebung Kaffee – Hopfauerstraße 33, 70563 Stuttgart, Germany")
-    canvas.drawString(2 * cm, 1.7 * cm, "Thank you for choosing Versöhnung und Vergebung Kaffee!")
+    canvas.drawString(2 * cm, 2.2 * cm, "Versoehnung und Vergebung Kaffee - Hopfauerstrasse 33, 70563 Stuttgart, Germany")
+    canvas.drawString(2 * cm, 1.7 * cm, "Thank you for choosing Versoehnung und Vergebung Kaffee!")
     canvas.restoreState()
 
 
@@ -510,16 +510,19 @@ def _ensure_paid_or_superuser(order, user):
     raise Http404("Order not available")
 
 
-PACKABLE_STATUSES = ["paid"]
+PACKABLE_STATUSES = ["paid", "pending_fulfillment"]
 
 
 @login_required
 @permission_required("orders.view_fulfillment", raise_exception=True)
 def fulfillment_paid_orders(request):
-    orders = (Order.objects
-              .filter(status__in=PACKABLE_STATUSES)
-              .order_by("-created_at")
-              .prefetch_related("items"))
+    orders = (
+        Order.objects
+        .filter(status__in=PACKABLE_STATUSES)
+        .order_by("-created_at")
+        .prefetch_related("items")
+        .annotate(total_quantity=Sum("items__quantity"))
+    )
     q = request.GET.get("q")
     if q:
         orders = orders.filter(full_name__icontains=q) | orders.filter(email__icontains=q)
@@ -533,8 +536,19 @@ def fulfillment_paid_orders(request):
 def mark_order_fulfilled(request, order_id):
     order = get_object_or_404(Order, pk=order_id)
     if order.status not in ("pending_fulfillment", "paid"):
-        # Ignore or show error if it’s not in a packable state
+        # Ignore or show error if it's not in a packable state
         return redirect("orders:fulfillment_paid_orders")
+
+    # Apply FIFO consumption on product batches before marking fulfilled
+    for item in order.items.select_related("product").all():
+        product = item.product
+        if not product:
+            continue
+        grams_needed = Decimal(item.weight_grams or 0) * Decimal(item.quantity or 0)
+        try:
+            product.consume_grams_fifo(grams_needed)
+        except Exception:
+            logger.exception("Failed to consume FIFO stock for product %s", product.id)
 
     order.status = "fulfilled"
     order.fulfilled_at = timezone.now()
@@ -547,17 +561,42 @@ def fulfillment_recently_fulfilled(request):
     orders = (Order.objects
               .filter(status="fulfilled")
               .order_by("-created_at")[:20]      # last 20
-              .prefetch_related("items"))
+              .prefetch_related("items")
+              .annotate(total_quantity=Sum("items__quantity")))
     return render(request, "orders/fulfillment_recent.html", {"orders": orders})
 
 
 @login_required
 def my_orders(request):
-    orders = (Order.objects
-              .filter(user=request.user)
-              .order_by("-created_at")
-              .prefetch_related("items"))
-    return render(request, "orders/my_orders.html", {"orders": orders})
+    orders = (
+        Order.objects
+        .filter(user=request.user)
+        .order_by("-created_at")
+        .prefetch_related("items")
+    )
+
+    status_filter = request.GET.get("status") or ""
+    date_from = request.GET.get("date_from") or ""
+    date_to = request.GET.get("date_to") or ""
+
+    if status_filter:
+        orders = orders.filter(status=status_filter)
+    if date_from:
+        orders = orders.filter(created_at__date__gte=date_from)
+    if date_to:
+        orders = orders.filter(created_at__date__lte=date_to)
+
+    return render(
+        request,
+        "orders/my_orders.html",
+        {
+            "orders": orders,
+            "status_filter": status_filter,
+            "date_from": date_from,
+            "date_to": date_to,
+            "status_choices": Order.STATUS_CHOICES,
+        },
+    )
 
 
 @login_required
@@ -565,3 +604,187 @@ def my_order_detail(request, order_id: int):
     order = get_object_or_404(Order.objects.prefetch_related("items__product"),
                               id=order_id, user=request.user)
     return render(request, "orders/my_order_detail.html", {"order": order})
+
+
+@login_required
+def my_order_edit(request, order_id: int):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    # Only allow edits before payment/fulfillment
+    if order.status in {"paid", "pending_fulfillment", "fulfilled", "refunded"}:
+        messages.error(request, "Paid or fulfilled orders cannot be edited.")
+        return redirect("orders:my_order_detail", order_id=order.id)
+
+    if request.method == "POST":
+        form = OrderCustomerEditForm(request.POST, instance=order)
+        if form.is_valid():
+            form.save()
+            order.recalc_totals(save=True)
+            messages.success(request, "Order details updated.")
+            return redirect("orders:my_order_detail", order_id=order.id)
+    else:
+        form = OrderCustomerEditForm(instance=order)
+
+    return render(
+        request,
+        "orders/my_order_edit.html",
+        {"form": form, "order": order},
+    )
+
+
+@login_required
+@require_POST
+def my_order_delete(request, order_id: int):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    if order.status in {"paid", "pending_fulfillment", "fulfilled", "refunded"}:
+        messages.error(request, "Paid or fulfilled orders cannot be deleted.")
+        return redirect("orders:my_order_detail", order_id=order.id)
+    order.delete()
+    messages.success(request, "Order deleted.")
+    return redirect("orders:my_orders")
+
+@login_required
+@staff_required
+def staff_order_list(request):
+    orders = (
+        Order.objects.select_related("user")
+        .prefetch_related("items__product")
+        .order_by("-created_at")
+    )
+
+    status_filter = request.GET.get("status")
+    query = request.GET.get("q")
+    product_query = request.GET.get("product")
+    date_from = request.GET.get("date_from")
+    date_to = request.GET.get("date_to")
+
+    if status_filter:
+        orders = orders.filter(status=status_filter)
+
+    if query:
+        orders = orders.filter(
+            Q(full_name__icontains=query)
+            | Q(email__icontains=query)
+            | Q(user__username__icontains=query)
+        )
+
+    if date_from:
+        orders = orders.filter(created_at__date__gte=date_from)
+    if date_to:
+        orders = orders.filter(created_at__date__lte=date_to)
+    if product_query:
+        orders = orders.filter(items__product_name_snapshot__icontains=product_query).distinct()
+
+    # Suggestions for autocomplete
+    order_ids = list(orders.values_list("id", flat=True))
+    customer_suggestions = (
+        orders.values_list("full_name", flat=True).distinct()
+    )
+    email_suggestions = (
+        orders.values_list("email", flat=True).distinct()
+    )
+    product_suggestions = (
+        OrderItem.objects.filter(order_id__in=order_ids)
+        .values_list("product_name_snapshot", flat=True)
+        .distinct()
+    )
+
+    # Revenue dashboard (paid + fulfilled)
+    revenue_statuses = ["paid", "pending_fulfillment", "fulfilled"]
+    revenue_orders = orders.filter(status__in=revenue_statuses)
+    revenue_total = revenue_orders.aggregate(total=Sum("total"))["total"] or Decimal("0.00")
+
+    line_value = ExpressionWrapper(
+        F("unit_price") * F("quantity"),
+        output_field=DecimalField(max_digits=12, decimal_places=2),
+    )
+    raw_revenue = list(
+        OrderItem.objects.filter(order__in=revenue_orders)
+        .values("product_name_snapshot")
+        .annotate(amount=Sum(line_value))
+        .order_by("-amount")
+    )
+
+    # Group Maraba variants under a single MARABA bucket
+    grouped = {}
+    for row in raw_revenue:
+        name = row.get("product_name_snapshot") or ""
+        amount = row.get("amount") or Decimal("0.00")
+        label = name
+        if name.strip().upper().startswith("MARABA"):
+            label = "MARABA"
+        grouped[label] = grouped.get(label, Decimal("0.00")) + amount
+
+    revenue_by_product = [
+        {"product_name_snapshot": label, "amount": amt}
+        for label, amt in grouped.items()
+    ]
+    revenue_by_product.sort(key=lambda r: r.get("amount") or Decimal("0.00"), reverse=True)
+
+    total_amount = revenue_total or Decimal("0.00")
+    for row in revenue_by_product:
+        amt = row.get("amount") or Decimal("0.00")
+        row["percent"] = int((amt / total_amount * 100)) if total_amount else 0
+
+    return render(
+        request,
+        "orders/staff_order_list.html",
+        {
+            "orders": orders,
+            "revenue_total": revenue_total,
+            "revenue_by_product": revenue_by_product,
+            "revenue_top_amount": total_amount,
+            "status_filter": status_filter or "",
+            "query": query or "",
+            "date_from": date_from or "",
+            "date_to": date_to or "",
+            "product_query": product_query or "",
+            "status_choices": Order.STATUS_CHOICES,
+            "customer_suggestions": customer_suggestions,
+            "email_suggestions": email_suggestions,
+            "product_suggestions": product_suggestions,
+        },
+    )
+
+
+@login_required
+@staff_required
+def staff_order_detail(request, pk: int):
+    order = get_object_or_404(
+        Order.objects.prefetch_related("items__product"), pk=pk
+    )
+    return render(request, "orders/staff_order_detail.html", {"order": order})
+
+
+@login_required
+@staff_required
+def staff_order_update(request, pk: int):
+    order = get_object_or_404(Order, pk=pk)
+    if request.method == "POST":
+        form = StaffOrderForm(request.POST, instance=order)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Order updated.")
+            return redirect("orders:staff_order_detail", pk=order.pk)
+    else:
+        form = StaffOrderForm(instance=order)
+
+    return render(
+        request,
+        "orders/staff_order_form.html",
+        {"form": form, "order": order},
+    )
+
+
+@login_required
+@staff_required
+def staff_order_delete(request, pk: int):
+    order = get_object_or_404(Order, pk=pk)
+    if request.method == "POST":
+        order.delete()
+        messages.success(request, "Order deleted.")
+        return redirect("orders:staff_order_list")
+    return render(
+        request,
+        "orders/staff_order_confirm_delete.html",
+        {"order": order},
+    )

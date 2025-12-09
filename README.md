@@ -50,6 +50,42 @@ This app is designed to help small and medium-sized businesses:
 - Allow users to order products for delivery
 
 ---
+## E-Commerce Business Model
+
+VV-Kaffee follows a **direct-to-consumer (D2C) online retail model**:
+
+- **Value Proposition**
+  - Fresh, ethically sourced Rwandan specialty coffee roasted for customers in Germany.
+  - Every purchase supports reconciliation and community development in Rwanda.
+
+- **Customer Segments**
+  - Coffee enthusiasts in Germany who care about origin and story.
+  - Ethical consumers who want their purchases to have social impact.
+  - Gift buyers looking for meaningful, story-based products.
+
+- **Revenue Streams**
+  - Online sales of coffee beans (250g and 1kg packs).
+  - Occasional limited editions and bundles.
+
+- **Channels**
+  - VV-Kaffee web shop (this project).
+  - Social media (Facebook page, Instagram) to drive traffic to the shop.
+  - Newsletter for repeat engagement.
+
+- **Key Activities**
+  - Sourcing and roasting coffee.
+  - Managing stock and online orders.
+  - Packing and shipping orders to customers.
+  - Storytelling and community updates via newsletter and social media.
+
+- **Order Lifecycle**
+  1. User browses the shop and adds products to the cart.
+  2. User checks out using Stripe (card payments).
+  3. An order record is created and marked as “paid” after Stripe confirmation.
+  4. Fulfilment workflow: the team prepares, packs and dispatches coffee.
+  5. Customer receives an email confirmation and can later re-order from their profile.
+
+---
 
 ## 🚀 Features
 
@@ -86,6 +122,14 @@ This app is designed to help small and medium-sized businesses:
         - Admins can manage subscribers and send bulk emails  
         - Double opt-in confirmation for GDPR compliance  
         - Unsubscribe link included in every newsletter
+
+## Staff & Fulfillment Modes
+
+- **Concept**: Workers (staff or fulfillment-capable users) have two modes: Work mode (default) and Customer mode (manual toggle). Fulfillment-only users remain non-staff and cannot access Django admin.
+- **Navigation & Visibility**: In Work mode, customer links/cart are hidden; only permitted tools appear. Staff see Products/Orders links based on their `products.*` and `orders.*` permissions. Fulfillers see the Fulfillment link if they have `orders.view_fulfillment` or are in the “Fulfillment Department” group. In Customer mode, staff/fulfillment links disappear and standard shop/cart/account links return. A badge plus a full-width toggle button live in the user dropdown.
+- **Redirects & Guardrails**: Workers in Work mode who hit customer account/order pages are redirected to the fulfillment queue with an info message. The fulfillment button/card on the account page renders only when the user is in Work mode and has fulfillment access.
+- **Permissions & Groups**: Fulfillers need `orders.view_fulfillment` (and typically `orders.change_fulfillment_status`) or membership in “Fulfillment Department.” Product/order managers need the relevant `products.*`/`orders.*` perms. Admin staff set `is_staff=True`; fulfillment-only users can stay non-staff.
+- **Mode Behavior Summary**: Workers default to Work mode after login; non-workers stay customer-only. The dropdown toggle switches between Work mode and Customer mode; Customer mode re-enables cart/account for shopping. If links don’t appear, verify permissions/groups and that the user is in Work mode.
 
 ---
 
@@ -253,6 +297,11 @@ EMAIL_USE_TLS=True
 EMAIL_HOST_USER=your_email@gmail.com
 EMAIL_HOST_PASSWORD=your_app_password
 DEFAULT_FROM_EMAIL=your_email@gmail.com
+# Site metadata for emails/links
+SITE_URL=http://127.0.0.1:8000
+SITE_NAME=VV Kaffee
+# Send internal alerts to these addresses when orders are paid (comma-separated)
+ORDER_NOTIFICATION_EMAILS=ops@example.com,team@example.com
 
 # PostgreSQL (used by Heroku)
 DATABASE_URL=postgres://user:password@host:port/dbname
@@ -276,6 +325,8 @@ python manage.py createsuperuser
 ```bash
 python manage.py runserver
 ```
+
+- Internal UI sandbox: while logged in, visit `/testbed/` to preview components in `templates/test_base.html` without affecting live pages.
 
 ---
 
@@ -382,9 +433,11 @@ Each is displayed with consistent image styling and pagination for better UX.
 
 ## 📧 Email Notifications
 
-The system is configured to send confirmation emails upon successful placement of orders using SMTP credentials.
+The system is configured to send:
+- Order emails (pending + paid) using your SMTP credentials.
+- New user signup flow: Allauth sends a confirmation email and the app sends a welcome email after registration.
 
-Emails include a link so that user can go to their account and manage their orders, profile, etc.
+Emails include links so users can go to their account and manage their orders, profile, etc.
 
 ---
 
@@ -398,6 +451,7 @@ Emails include a link so that user can go to their account and manage their orde
 | Product Image Display  | Add a product with an image; check that it displays correctly on `/products/`.          |
 | Cart Functionality     | Add, update, and remove items in the cart; verify totals and quantities update.         |
 | Email Confirmation     | Place an order and confirm receipt of a confirmation email.                             |
+| User Signup Emails     | Register a new account and verify both the confirmation email and the welcome email arrive. |
 | Review Submission      | After order completion, submit a product review and check it appears on the site.       |
 | Newsletter Signup      | Subscribe to the newsletter and verify confirmation and double opt-in email.            |
 | Admin Dashboard        | Log in as admin, view orders, manage products, and export order data as CSV.            |
@@ -621,6 +675,9 @@ EMAIL_USE_TLS=True
 EMAIL_HOST_USER=your_email@gmail.com
 EMAIL_HOST_PASSWORD=your_app_password
 DEFAULT_FROM_EMAIL=your_email@gmail.com
+# Site metadata for emails/links
+SITE_URL=http://127.0.0.1:8000
+SITE_NAME=VV Kaffee
 
 # PostgreSQL (used by Heroku)
 DATABASE_URL=postgres://user:password@host:port/dbname

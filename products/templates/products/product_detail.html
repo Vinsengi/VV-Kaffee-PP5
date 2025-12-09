@@ -2,7 +2,7 @@
 {% load humanize %}
 {% block content %}
   <nav class="mb-3">
-    <a class="text-decoration-none" href="{% url 'products:product_list' %}">← Back to shop</a>
+    <a class="text-decoration-none" href="{% url 'products:product_list' %}">&#8592; Back to shop</a>
   </nav>
 
   <div class="row g-4">
@@ -18,10 +18,23 @@
 
     <div class="col-md-6">
       <h1 class="h3">{{ product.name }}</h1>
-      <p class="text-muted mb-1">
-        {{ product.roast_type|title }} • {{ product.weight_grams }}g
-      </p>
-      <p class="h4 mb-3">€{{ product.price|floatformat:2|intcomma }}</p>
+      <p class="text-muted mb-1">{{ product.roast_type|title }}</p>
+      <p class="h4 mb-3" id="priceDisplay" data-base-price="{{ product.price|floatformat:2 }}">&euro;{{ product.price|floatformat:2|intcomma }}</p>
+
+      <div class="d-flex align-items-center flex-wrap gap-2 mb-3" id="reviews">
+        {% if average_rating %}
+          <div class="text-warning d-flex align-items-center">
+            {% for i in "12345"|make_list %}
+              <span class="{% if forloop.counter <= average_rating %}text-warning{% else %}text-secondary{% endif %}">&#9733;</span>
+            {% endfor %}
+            <span class="text-secondary small ms-2">{{ average_rating|floatformat:1 }}/5</span>
+          </div>
+          <span class="text-secondary small">({{ review_count|default:0 }} review{{ review_count|default:0|pluralize }})</span>
+        {% else %}
+          <span class="text-secondary small">No reviews yet</span>
+        {% endif %}
+        <a class="small text-decoration-none" href="#write-review">Leave a review</a>
+      </div>
 
       {% if product.tasting_notes %}
         <p class="mt-2"><strong>Tasting notes:</strong> {{ product.tasting_notes }}</p>
@@ -91,6 +104,69 @@
             Out of stock
           {% endif %}
         </small>
+      </div>
+    </div>
+  </div>
+
+  <hr class="my-5">
+
+  <div class="row g-4">
+    <div class="col-lg-6">
+      {% include "reviews/review_list.html" with reviews=reviews review_count=review_count average_rating=average_rating %}
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card h-100" id="write-review">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <h5 class="card-title mb-0">Share your experience</h5>
+            <a class="small text-decoration-none" href="#reviews">See reviews</a>
+          </div>
+          <p class="text-secondary small mb-3">Tell us about the coffee itself and your shopping experience (delivery, packaging, checkout).</p>
+          {% if can_review %}
+            {% if review_form_reset %}
+              <p class="text-secondary small mb-2">Thanks for your review! The form is ready if you want to add another update.</p>
+            {% endif %}
+            <form method="post" action="{% url 'reviews:product_review' product.id %}" class="row g-3">
+              {% csrf_token %}
+              {% if review_form.non_field_errors %}
+                <div class="alert alert-danger">
+                  {{ review_form.non_field_errors }}
+                </div>
+              {% endif %}
+              <div class="col-12">
+                <label class="form-label">Rating</label>
+                {{ review_form.rating }}
+                {% if review_form.rating.errors %}
+                  <div class="text-danger small">{{ review_form.rating.errors }}</div>
+                {% endif %}
+              </div>
+              <div class="col-12">
+                <label class="form-label">Title</label>
+                {{ review_form.title }}
+                {% if review_form.title.errors %}
+                  <div class="text-danger small">{{ review_form.title.errors }}</div>
+                {% endif %}
+              </div>
+              <div class="col-12">
+                <label class="form-label">Comment</label>
+                {{ review_form.comment }}
+                {% if review_form.comment.errors %}
+                  <div class="text-danger small">{{ review_form.comment.errors }}</div>
+                {% endif %}
+              </div>
+              <div class="col-12">
+                <button class="btn btn-primary">Submit review</button>
+              </div>
+            </form>
+          {% elif user.is_authenticated %}
+            <p class="text-secondary mb-2">You can leave a review once you've purchased this product.</p>
+            <a class="btn btn-outline-primary btn-sm" href="{% url 'products:product_list' %}">Back to shop</a>
+          {% else %}
+            <p class="text-secondary mb-2">Log in, purchase, and then share how the coffee and checkout went.</p>
+            <a class="btn btn-outline-primary" href="{% url 'account_login' %}?next={{ request.path }}">Log in to review</a>
+          {% endif %}
+        </div>
       </div>
     </div>
   </div>
