@@ -43,6 +43,9 @@ def account_dashboard(request):
     Simple account hub: shows profile summary + recent orders.
     """
     if is_worker(request.user) and get_staff_mode(request):
+        if request.user.is_staff:
+            messages.info(request, "You're in work mode. Redirecting to Orders management.")
+            return redirect("orders:staff_order_list")
         messages.info(request, "You're in work mode. Redirecting to fulfillment queue.")
         return redirect("orders:fulfillment_paid_orders")
 
@@ -91,6 +94,9 @@ def order_list(request):
     List all orders belonging to the logged-in user.
     """
     if is_worker(request.user) and get_staff_mode(request):
+        if request.user.is_staff:
+            messages.info(request, "You're in work mode. Redirecting to Orders management.")
+            return redirect("orders:staff_order_list")
         messages.info(request, "You're in work mode. Redirecting to fulfillment queue.")
         return redirect("orders:fulfillment_paid_orders")
 
@@ -108,6 +114,9 @@ def order_detail(request, order_id: int):
     Show one order (must belong to the logged-in user).
     """
     if is_worker(request.user) and get_staff_mode(request):
+        if request.user.is_staff:
+            messages.info(request, "You're in work mode. Redirecting to Orders management.")
+            return redirect("orders:staff_order_list")
         messages.info(request, "You're in work mode. Redirecting to fulfillment queue.")
         return redirect("orders:fulfillment_paid_orders")
 
@@ -121,13 +130,19 @@ def order_detail(request, order_id: int):
 
 @login_required
 def post_login_redirect(request):
-    # If the user is fulfillment staff, always send them to the staff screen
+    user = request.user
+    # Staff/managers land on Orders management when in work mode
+    if user.is_staff and get_staff_mode(request):
+        return redirect("orders:staff_order_list")
+
+    # Fulfillment-only staff go to fulfillment queue when in work mode
     if (
-        request.user.groups.filter(name="Fulfillment Department").exists()
-        or request.user.has_perm("orders.view_fulfillment")
+        user.groups.filter(name="Fulfillment Department").exists()
+        or user.has_perm("orders.view_fulfillment")
     ):
         if get_staff_mode(request):
             return redirect("orders:fulfillment_paid_orders")
+
     # Otherwise, to their customer account dashboard
     return redirect("profiles:account_dashboard")
 

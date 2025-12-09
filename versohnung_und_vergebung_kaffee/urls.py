@@ -3,9 +3,11 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
 from profiles import views as profile_views  # for post-login redirect
+from . import views as root_views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("staff/admin/", root_views.staff_admin_hub, name="staff_admin_hub"),
 
     path("", TemplateView.as_view(template_name="home.html"), name="home"),
 

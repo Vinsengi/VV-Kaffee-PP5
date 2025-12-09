@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="mb-4 p-4 rounded-3 bg-dark text-light">
+  <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+    <div>
+      <div class="text-uppercase small text-secondary">Staff tools</div>
+      <h1 class="h3 mb-1">Admin Hub</h1>
+      <p class="mb-0 text-secondary">Shortcuts to the tasks you do most. Everything stays inside the UI.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <a class="btn btn-outline-light btn-sm" href="{% url 'home' %}">Home</a>
+      {% if can_use_admin %}
+        <a class="btn btn-light btn-sm" href="{% url 'admin:index' %}" target="_blank" rel="noopener">Open Django admin</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  {% if can_manage_products %}
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100 shadow-sm border-0">
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <h5 class="mb-0">Products</h5>
+          <span class="badge bg-primary-subtle text-primary">Staff</span>
+        </div>
+        <p class="text-secondary mb-3">Add or edit products, prices, images, and batches.</p>
+        <div class="d-flex gap-2">
+          <a class="btn btn-primary" href="{% url 'products:staff_product_list' %}">Manage</a>
+          {% if perms.products.add_product %}
+            <a class="btn btn-outline-primary" href="{% url 'products:staff_product_create' %}">New product</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if can_manage_orders %}
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100 shadow-sm border-0">
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <h5 class="mb-0">Orders</h5>
+          <span class="badge bg-success-subtle text-success">Staff</span>
+        </div>
+        <p class="text-secondary mb-3">Search, update, or refund customer orders.</p>
+        <div class="d-flex gap-2">
+          <a class="btn btn-success" href="{% url 'orders:staff_order_list' %}">Open orders</a>
+          <a class="btn btn-outline-success" href="{% url 'orders:staff_order_list' %}?status=paid">Paid only</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if can_manage_fulfillment %}
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100 shadow-sm border-0">
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <h5 class="mb-0">Fulfillment</h5>
+          <span class="badge bg-warning text-dark">Warehouse</span>
+        </div>
+        <p class="text-secondary mb-3">Pick and pack paid orders. Mark them fulfilled once shipped.</p>
+        <div class="d-flex gap-2">
+          <a class="btn btn-warning text-dark" href="{% url 'orders:fulfillment_paid_orders' %}">Paid orders</a>
+          <a class="btn btn-outline-warning text-dark" href="{% url 'orders:fulfillment_recent' %}">Recently fulfilled</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if can_use_admin %}
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100 shadow-sm border-0">
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <h5 class="mb-0">Django admin</h5>
+          <span class="badge bg-secondary">Full access</span>
+        </div>
+        <p class="text-secondary mb-3">Use the classic Django admin for advanced tasks (users, groups, permissions).</p>
+        <a class="btn btn-dark" href="{% url 'admin:index' %}" target="_blank" rel="noopener">Open Django admin</a>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+{% if not can_manage_products and not can_manage_orders and not can_manage_fulfillment and not can_use_admin %}
+  <div class="alert alert-warning mt-4">
+    Your account does not have staff permissions. Please contact an administrator.
+  </div>
+{% endif %}
+{% endblock %}

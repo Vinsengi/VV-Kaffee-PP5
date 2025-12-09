@@ -56,6 +56,7 @@
           <ul class="navbar-nav me-auto">
             <li class="nav-item"><a class="nav-link {% if current == 'product_list' %}active-nav{% endif %}" href="{% url 'products:product_list' %}">Shop</a></li>
             {% if worker_user and staff_mode_active %}
+              <li class="nav-item"><a class="nav-link {% if current == 'staff_admin_hub' %}active-nav{% endif %}" href="{% url 'staff_admin_hub' %}">Admin Hub</a></li>
               {% if perms.products.add_product or perms.products.change_product or perms.products.delete_product or perms.products.view_product %}
                 <li class="nav-item"><a class="nav-link {% if current == 'staff_product_list' %}active-nav{% endif %}" href="{% url 'products:staff_product_list' %}">Products Management</a></li>
               {% endif %}

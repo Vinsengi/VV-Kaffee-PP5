@@ -106,3 +106,35 @@ class StaffOrderForm(forms.ModelForm):
         if commit:
             order.save()
         return order
+
+
+class OrderCustomerEditForm(forms.ModelForm):
+    """
+    Minimal edit form for customers to fix contact/shipping details
+    before payment.
+    """
+
+    class Meta:
+        model = Order
+        fields = [
+            "full_name",
+            "email",
+            "phone_number",
+            "street",
+            "house_number",
+            "city",
+            "postal_code",
+            "country",
+            "notes",
+        ]
+        widgets = {
+            "full_name": forms.TextInput(attrs={"class": "form-control"}),
+            "email": forms.EmailInput(attrs={"class": "form-control"}),
+            "phone_number": forms.TextInput(attrs={"class": "form-control"}),
+            "street": forms.TextInput(attrs={"class": "form-control"}),
+            "house_number": forms.TextInput(attrs={"class": "form-control"}),
+            "city": forms.TextInput(attrs={"class": "form-control"}),
+            "postal_code": forms.TextInput(attrs={"class": "form-control"}),
+            "country": forms.TextInput(attrs={"class": "form-control"}),
+            "notes": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+        }

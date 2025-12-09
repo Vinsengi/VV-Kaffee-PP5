@@ -15,7 +15,7 @@ from django.urls import reverse
 
 from products.models import Product
 from cart.utils import cart_from_session, compute_summary
-from .forms import CheckoutForm, StaffOrderForm
+from .forms import CheckoutForm, StaffOrderForm, OrderCustomerEditForm
 from .models import Order, OrderItem
 from django.contrib.admin.views.decorators import staff_member_required
 
@@ -568,11 +568,35 @@ def fulfillment_recently_fulfilled(request):
 
 @login_required
 def my_orders(request):
-    orders = (Order.objects
-              .filter(user=request.user)
-              .order_by("-created_at")
-              .prefetch_related("items"))
-    return render(request, "orders/my_orders.html", {"orders": orders})
+    orders = (
+        Order.objects
+        .filter(user=request.user)
+        .order_by("-created_at")
+        .prefetch_related("items")
+    )
+
+    status_filter = request.GET.get("status") or ""
+    date_from = request.GET.get("date_from") or ""
+    date_to = request.GET.get("date_to") or ""
+
+    if status_filter:
+        orders = orders.filter(status=status_filter)
+    if date_from:
+        orders = orders.filter(created_at__date__gte=date_from)
+    if date_to:
+        orders = orders.filter(created_at__date__lte=date_to)
+
+    return render(
+        request,
+        "orders/my_orders.html",
+        {
+            "orders": orders,
+            "status_filter": status_filter,
+            "date_from": date_from,
+            "date_to": date_to,
+            "status_choices": Order.STATUS_CHOICES,
+        },
+    )
 
 
 @login_required
@@ -580,6 +604,43 @@ def my_order_detail(request, order_id: int):
     order = get_object_or_404(Order.objects.prefetch_related("items__product"),
                               id=order_id, user=request.user)
     return render(request, "orders/my_order_detail.html", {"order": order})
+
+
+@login_required
+def my_order_edit(request, order_id: int):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    # Only allow edits before payment/fulfillment
+    if order.status in {"paid", "pending_fulfillment", "fulfilled", "refunded"}:
+        messages.error(request, "Paid or fulfilled orders cannot be edited.")
+        return redirect("orders:my_order_detail", order_id=order.id)
+
+    if request.method == "POST":
+        form = OrderCustomerEditForm(request.POST, instance=order)
+        if form.is_valid():
+            form.save()
+            order.recalc_totals(save=True)
+            messages.success(request, "Order details updated.")
+            return redirect("orders:my_order_detail", order_id=order.id)
+    else:
+        form = OrderCustomerEditForm(instance=order)
+
+    return render(
+        request,
+        "orders/my_order_edit.html",
+        {"form": form, "order": order},
+    )
+
+
+@login_required
+@require_POST
+def my_order_delete(request, order_id: int):
+    order = get_object_or_404(Order, id=order_id, user=request.user)
+    if order.status in {"paid", "pending_fulfillment", "fulfilled", "refunded"}:
+        messages.error(request, "Paid or fulfilled orders cannot be deleted.")
+        return redirect("orders:my_order_detail", order_id=order.id)
+    order.delete()
+    messages.success(request, "Order deleted.")
+    return redirect("orders:my_orders")
 
 @login_required
 @staff_required
