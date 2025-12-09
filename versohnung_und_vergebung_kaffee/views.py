@@ -40,3 +40,9 @@ def staff_admin_hub(request):
         "can_view_experience_feedback": can_view_experience_feedback,
     }
     return render(request, "staff_admin_hub.html", context)
+
+
+@login_required
+def test_base(request):
+    """Render the UI sandbox template for quick component testing."""
+    return render(request, "test_base.html")

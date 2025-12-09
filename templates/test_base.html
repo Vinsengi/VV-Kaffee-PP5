@@ -1,0 +1,67 @@
+﻿{% extends "base.html" %}
+{% block title %}Component testbed | VV-Kaffee{% endblock %}
+{% block meta_description %}Sandbox template for safely testing UI components and layouts.{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="bg-white border rounded-3 shadow-sm p-4 p-md-5">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+      <div>
+        <div class="text-uppercase small text-muted">Internal only</div>
+        <h1 class="h3 mb-1">UI test sandbox</h1>
+        <li class="nav-item"><a class="nav-link" href="{% url 'account_signup' %}">Register</a></li>
+      </div>
+      <div class="d-flex gap-2 flex-wrap">
+        <button type="button" class="btn btn-primary">Primary action</button>
+        <button type="button" class="btn btn-outline-secondary">Secondary</button>
+      </div>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Example card</h5>
+            <p class="card-text text-muted">Replace this card with whatever element you need to test.</p>
+            <ul class="mb-3 text-muted small">
+              <li>Typography</li>
+              <li>Spacing / grids</li>
+              <li>Buttons or badges</li>
+            </ul>
+            <a href="{% url 'home' %}" class="btn btn-dark">Back to home</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="border rounded-3 h-100 p-4 d-flex flex-column justify-content-center bg-light">
+          <div class="alert alert-info mb-3" role="alert">
+            This column is a blank canvas for inputs, alerts, tables, or images you want to preview.
+          </div>
+          <form class="row g-2">
+            <div class="col-12">
+              <label class="form-label" for="exampleEmail">Email</label>
+              <input type="email" class="form-control" id="exampleEmail" placeholder="name@example.com">
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="exampleSelect">Select</label>
+              <select class="form-select" id="exampleSelect">
+                <option selected>Choose an option</option>
+                <option value="1">Option A</option>
+                <option value="2">Option B</option>
+                <option value="3">Option C</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="exampleTextarea">Notes</label>
+              <textarea class="form-control" id="exampleTextarea" rows="3" placeholder="Add notes"></textarea>
+            </div>
+            <div class="col-12">
+              <button type="submit" class="btn btn-success w-100">Submit test form</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -10,6 +10,7 @@ urlpatterns = [
     path("staff/admin/", root_views.staff_admin_hub, name="staff_admin_hub"),
 
     path("", TemplateView.as_view(template_name="home.html"), name="home"),
+    path("testbed/", root_views.test_base, name="test_base"),
 
     path("shop/", include(("products.urls", "products"), namespace="products")),
     path("cart/", include(("cart.urls", "cart"), namespace="cart")),

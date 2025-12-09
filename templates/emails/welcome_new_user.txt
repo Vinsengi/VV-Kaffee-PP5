@@ -1,0 +1,11 @@
+Hi {{ user.username|default:user.email|default:"there" }},
+
+Welcome to {{ site_name }}! Thanks for registering.
+
+Start exploring:
+- Shop coffee: {{ site_url }}/shop/
+- Manage your account: {{ site_url }}/account/
+
+If you need help, just reply to this email.
+
+- {{ site_name }}
