@@ -297,6 +297,9 @@ EMAIL_USE_TLS=True
 EMAIL_HOST_USER=your_email@gmail.com
 EMAIL_HOST_PASSWORD=your_app_password
 DEFAULT_FROM_EMAIL=your_email@gmail.com
+# Site metadata for emails/links
+SITE_URL=http://127.0.0.1:8000
+SITE_NAME=VV Kaffee
 # Send internal alerts to these addresses when orders are paid (comma-separated)
 ORDER_NOTIFICATION_EMAILS=ops@example.com,team@example.com
 
@@ -322,6 +325,8 @@ python manage.py createsuperuser
 ```bash
 python manage.py runserver
 ```
+
+- Internal UI sandbox: while logged in, visit `/testbed/` to preview components in `templates/test_base.html` without affecting live pages.
 
 ---
 
@@ -428,9 +433,11 @@ Each is displayed with consistent image styling and pagination for better UX.
 
 ## 📧 Email Notifications
 
-The system is configured to send confirmation emails upon successful placement of orders using SMTP credentials.
+The system is configured to send:
+- Order emails (pending + paid) using your SMTP credentials.
+- New user signup flow: Allauth sends a confirmation email and the app sends a welcome email after registration.
 
-Emails include a link so that user can go to their account and manage their orders, profile, etc.
+Emails include links so users can go to their account and manage their orders, profile, etc.
 
 ---
 
@@ -444,6 +451,7 @@ Emails include a link so that user can go to their account and manage their orde
 | Product Image Display  | Add a product with an image; check that it displays correctly on `/products/`.          |
 | Cart Functionality     | Add, update, and remove items in the cart; verify totals and quantities update.         |
 | Email Confirmation     | Place an order and confirm receipt of a confirmation email.                             |
+| User Signup Emails     | Register a new account and verify both the confirmation email and the welcome email arrive. |
 | Review Submission      | After order completion, submit a product review and check it appears on the site.       |
 | Newsletter Signup      | Subscribe to the newsletter and verify confirmation and double opt-in email.            |
 | Admin Dashboard        | Log in as admin, view orders, manage products, and export order data as CSV.            |
@@ -667,6 +675,9 @@ EMAIL_USE_TLS=True
 EMAIL_HOST_USER=your_email@gmail.com
 EMAIL_HOST_PASSWORD=your_app_password
 DEFAULT_FROM_EMAIL=your_email@gmail.com
+# Site metadata for emails/links
+SITE_URL=http://127.0.0.1:8000
+SITE_NAME=VV Kaffee
 
 # PostgreSQL (used by Heroku)
 DATABASE_URL=postgres://user:password@host:port/dbname
