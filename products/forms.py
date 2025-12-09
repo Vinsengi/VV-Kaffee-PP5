@@ -1,12 +1,40 @@
+from decimal import Decimal, ROUND_HALF_UP
+
 from django import forms
 
 from .models import Product, ProductBatch, PackVariant
 
 
+class CommaDecimalField(forms.DecimalField):
+    """Accept both comma and dot decimal separators."""
+
+    def to_python(self, value):
+        if isinstance(value, str):
+            value = value.replace(",", ".")
+        return super().to_python(value)
+
+
 class ProductForm(forms.ModelForm):
-    cost_price = forms.DecimalField(min_value=0, max_digits=8, decimal_places=2, help_text="Cost to acquire/produce (EUR).")
-    markup_percent = forms.DecimalField(min_value=0, max_digits=5, decimal_places=2, help_text="Markup as percentage (e.g., 25 = 25%).")
-    price = forms.DecimalField(min_value=0, max_digits=8, decimal_places=2, disabled=True, required=False, label="Sale price (cost + markup%)")
+    cost_price = CommaDecimalField(
+        min_value=0,
+        max_digits=8,
+        decimal_places=2,
+        help_text="Cost to acquire/produce (EUR).",
+    )
+    markup_percent = CommaDecimalField(
+        min_value=0,
+        max_digits=5,
+        decimal_places=2,
+        help_text="Markup as percentage (e.g., 25 = 25%).",
+    )
+    price = CommaDecimalField(
+        min_value=0,
+        max_digits=8,
+        decimal_places=2,
+        disabled=True,
+        required=False,
+        label="Sale price (cost + markup%)",
+    )
     weight_grams = forms.IntegerField(min_value=1)
     stock = forms.IntegerField(
         min_value=0,
@@ -56,9 +84,10 @@ class ProductForm(forms.ModelForm):
 
     def clean(self):
         cleaned = super().clean()
-        cost = cleaned.get("cost_price") or 0
-        pct = cleaned.get("markup_percent") or 0
-        cleaned["price"] = cost * (1 + pct / 100)
+        cost = cleaned.get("cost_price") or Decimal("0")
+        pct = cleaned.get("markup_percent") or Decimal("0")
+        price = cost * (Decimal("1") + (pct / Decimal("100")))
+        cleaned["price"] = price.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
         return cleaned
 
 

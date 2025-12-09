@@ -41,6 +41,7 @@
       <th style="width: 200px;">Date</th>
       <th style="width: 150px;">Status</th>
       <th style="width: 140px;">Total</th>
+      <th style="width: 200px;">Feedback</th>
       <th style="width: 180px;" class="text-end"></th>
     </tr>
   </thead>
@@ -51,6 +52,12 @@
         <td>{{ o.created_at|date:"Y-m-d H:i" }}</td>
         <td>{{ o.get_status_display }}</td>
         <td>&euro;{{ o.total|floatformat:2 }}</td>
+        <td>
+          {% if o.status == "paid" or o.status == "fulfilled" or o.status == "refunded" %}
+            <a class="btn btn-sm btn-outline-primary mb-1" href="{% url 'reviews:order_review' o.id %}">Review items</a>
+            <a class="btn btn-sm btn-outline-secondary" href="{% url 'reviews:experience_review' o.id %}">Rate experience</a>
+          {% endif %}
+        </td>
         <td class="text-end">
           <a class="btn btn-sm btn-outline-primary" href="{% url 'orders:my_order_detail' o.id %}">View</a>
           {% if o.status == "new" %}

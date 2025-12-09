@@ -55,6 +55,24 @@
   </div>
   {% endif %}
 
+  {% if can_view_experience_feedback %}
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100 shadow-sm border-0">
+      <div class="card-body">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <h5 class="mb-0">Experience feedback</h5>
+          <span class="badge bg-info text-dark">CX</span>
+        </div>
+        <p class="text-secondary mb-3">Read post-purchase experience ratings and comments to spot checkout or delivery issues.</p>
+        <div class="d-flex gap-2">
+          <a class="btn btn-info text-dark" href="{% url 'admin:reviews_experiencefeedback_changelist' %}" target="_blank" rel="noopener">View feedback</a>
+          <a class="btn btn-outline-info text-dark" href="{% url 'admin:reviews_productreview_changelist' %}" target="_blank" rel="noopener">Product reviews</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
   {% if can_manage_fulfillment %}
   <div class="col-md-6 col-lg-4">
     <div class="card h-100 shadow-sm border-0">
@@ -89,7 +107,7 @@
   {% endif %}
 </div>
 
-{% if not can_manage_products and not can_manage_orders and not can_manage_fulfillment and not can_use_admin %}
+{% if not can_manage_products and not can_manage_orders and not can_manage_fulfillment and not can_use_admin and not can_view_experience_feedback %}
   <div class="alert alert-warning mt-4">
     Your account does not have staff permissions. Please contact an administrator.
   </div>

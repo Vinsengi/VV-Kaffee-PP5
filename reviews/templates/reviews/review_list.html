@@ -1,9 +1,9 @@
 <div class="d-flex justify-content-between align-items-center mb-2">
   {% comment %} <h5 class="mb-0">Reviews ({{ review_count|default:reviews|length }})</h5> {% endcomment %}
-   <h5 class="mb-0">Reviews ({% if review_count is not None %}{{ review_count }}{% else %}{{ reviews|length }}{% endif %})</h5>
+  <h5 class="mb-0">Reviews ({% if review_count is not None %}{{ review_count }}{% else %}{{ reviews|length }}{% endif %})</h5>
   {% if average_rating %}
     <div class="badge bg-warning-subtle text-dark border">
-      ★ {{ average_rating|floatformat:1 }}/5
+      &#9733; {{ average_rating|floatformat:1 }}/5
     </div>
   {% endif %}
 </div>
@@ -15,11 +15,11 @@
         <div>
           <div class="text-warning">
             {% for i in "12345"|make_list %}
-              <span class="{% if forloop.counter <= review.rating %}text-warning{% else %}text-secondary{% endif %}">★</span>
+              <span class="{% if forloop.counter <= review.rating %}text-warning{% else %}text-secondary{% endif %}">&#9733;</span>
             {% endfor %}
           </div>
           <div class="fw-semibold">{{ review.title|default:"Rated this product" }}</div>
-          <div class="small text-secondary">by {{ review.user.username }} · {{ review.created_at|date:"M j, Y" }}</div>
+          <div class="small text-secondary">by {{ review.user.username }} &middot; {{ review.created_at|date:"M j, Y" }}</div>
         </div>
         {% if review.comment %}
           <span class="badge bg-light text-secondary">{{ review.rating }} / 5</span>

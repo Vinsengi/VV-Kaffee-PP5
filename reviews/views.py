@@ -80,7 +80,7 @@ def experience_review(request, order_id):
             fb.order = order
             fb.save()
             messages.success(request, "Thanks for rating your experience!")
-            return redirect("orders:thank_you", order_id=order.id)
+            return redirect("orders:my_order_detail", order_id=order.id)
     else:
         form = ExpForm(instance=instance)
 

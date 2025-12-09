@@ -30,11 +30,13 @@ def staff_admin_hub(request):
     )
 
     can_use_admin = bool(user.is_staff)
+    can_view_experience_feedback = user.has_perm("reviews.view_experiencefeedback") or can_use_admin
 
     context = {
         "can_manage_products": can_manage_products,
         "can_manage_orders": can_manage_orders,
         "can_manage_fulfillment": can_manage_fulfillment,
         "can_use_admin": can_use_admin,
+        "can_view_experience_feedback": can_view_experience_feedback,
     }
     return render(request, "staff_admin_hub.html", context)
