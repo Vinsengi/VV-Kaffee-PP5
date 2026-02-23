@@ -5,7 +5,7 @@
 - [GitHub Repository](https://github.com/Vinsengi/VV-Kaffee)
 - [Testing summary](TESTING.md)
 - [Validation.md](VALIDATION.md)
-![Am I responsive Images](./static/images/readme_images/am_i_responsive.png)
+![Am I responsive Images](./static/images/readme_images/amiresponsive.png)
 
 ---
 
