@@ -1,0 +1,483 @@
+/* ============================================
+   VV-Kaffee Custom Styles (FINAL)
+   ============================================ */
+
+/* CSS Variables */
+:root {
+  --coffee-dark: #1a1714;
+  --coffee-medium: #2d2520;
+  --coffee-primary: #6F4E37;
+  --coffee-accent: #c9a96e;
+  --coffee-light: #f5f0e8;
+  --coffee-cream: #e8dfd3;
+  --transition-base: 0.3s ease;
+}
+
+/* ============================================
+   Layout & Structure
+   ============================================ */
+
+html { scroll-behavior: smooth; }
+
+html, body {
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* footer sticks to bottom */
+body {
+  font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  min-height: 100vh;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+main { flex: 1; }
+
+/* ============================================
+   Navigation
+   ============================================ */
+
+.navbar-brand span {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.navbar-dark .nav-link {
+  color: #fff;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.navbar-dark .nav-link:hover,
+.navbar-dark .nav-link:focus {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffd700;
+}
+
+.navbar-dark .nav-link.active-nav {
+  background-color: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ============================================
+   Buttons
+   ============================================ */
+
+.btn-link { text-decoration: none; }
+.btn-link:hover { text-decoration: underline; }
+
+.btn-coffee {
+  background: var(--coffee-primary);
+  color: #fff;
+  border: none;
+  transition: var(--transition-base);
+}
+
+.btn-coffee:hover,
+.btn-coffee:focus {
+  background: #5a3c24;
+  color: #fff;
+}
+
+.btn-outline-coffee {
+  border: 2px solid var(--coffee-primary);
+  color: var(--coffee-primary);
+  background: #fff;
+  transition: var(--transition-base);
+}
+
+.btn-outline-coffee:hover,
+.btn-outline-coffee:focus {
+  background: var(--coffee-primary);
+  color: #fff;
+}
+
+/* ============================================
+   Utilities
+   ============================================ */
+
+.text-coffee { color: var(--coffee-primary); }
+.border-coffee { border-color: var(--coffee-primary) !important; }
+
+/* ============================================
+   Alerts
+   ============================================ */
+
+.alert {
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+}
+
+/* ============================================
+   Footer
+   ============================================ */
+
+.vv-footer {
+  background: linear-gradient(180deg, var(--coffee-medium) 0%, var(--coffee-dark) 100%);
+  color: var(--coffee-cream);
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.vv-footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--coffee-accent), transparent);
+}
+
+/* Decorative coffee bean pattern */
+.footer-pattern {
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cellipse cx='30' cy='30' rx='12' ry='18' fill='%23c9a96e' transform='rotate(25 30 30)'/%3E%3Cpath d='M30 15 Q30 30 30 45' stroke='%231a1714' stroke-width='2' fill='none'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+.footer-main {
+  padding: 2rem 0 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* Optional: wider footer container on desktop */
+.vv-footer .footer-main .container {
+  max-width: 1400px;
+  padding-left: 50px;
+  padding-right: 50px;
+}
+
+/* Footer Brand */
+.footer-brand {
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+.footer-logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 2px solid var(--coffee-accent);
+  padding: 4px;
+  margin-bottom: 0.5rem;
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  will-change: transform;
+}
+
+.footer-logo:hover { transform: scale(1.05); }
+
+.footer-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: var(--coffee-light);
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.footer-tagline {
+  font-size: 0.85rem;
+  color: var(--coffee-accent);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-top: 0.25rem;
+}
+
+/* ============================================
+   Footer Grid (Desktop)
+   ============================================ */
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-areas: "visit hours social subscribe";
+  gap: 1.25rem;
+  align-items: start;
+  padding: 1.25rem 0;
+  border-top: 1px solid rgba(201, 169, 110, 0.15);
+  border-bottom: 1px solid rgba(201, 169, 110, 0.15);
+}
+
+.footer-grid > * { min-width: 0; }
+
+/* These classes must exist on the 4 blocks in HTML */
+.footer-visit { grid-area: visit; }
+.footer-hours-col { grid-area: hours; }
+.footer-social { grid-area: social; }
+.footer-subscribe { grid-area: subscribe; }
+
+/* Footer Section */
+.footer-section { min-width: 0; }
+
+.footer-section h4,
+.footer-subscribe h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--coffee-accent);
+  margin-bottom: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.footer-section p,
+.footer-section a {
+  font-size: 0.9rem;
+  color: var(--coffee-cream);
+  opacity: 0.85;
+  line-height: 1.8;
+  margin: 0;
+}
+
+.vv-footer a {
+  color: inherit;
+  text-decoration: none;
+  transition: all var(--transition-base);
+}
+
+.vv-footer a:hover {
+  color: var(--coffee-accent);
+  opacity: 1;
+}
+
+/* Address */
+.footer-address { font-style: normal; }
+.footer-address .street,
+.footer-address .city { display: block; }
+
+/* ============================================
+   Opening Hours (force LEFT + no big gap)
+   ============================================ */
+
+.footer-hours-col { text-align: left; }
+
+.footer-hours-col .footer-hours {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  align-items: flex-start; /* <-- key: starts left */
+}
+
+.footer-hours-col .hours-row {
+  display: grid;
+  grid-template-columns: 90px max-content; /* <-- no stretchy 1fr */
+  column-gap: 0.75rem;
+  align-items: baseline;
+  justify-content: start;
+}
+
+.footer-hours-col .hours-row span:last-child {
+  text-align: left; /* keep it near the day */
+}
+
+/* Social Links */
+.social-links {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.social-link {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid rgba(201, 169, 110, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--coffee-cream);
+  font-size: 1.1rem;
+  transition: all var(--transition-base);
+  will-change: transform;
+}
+
+.social-link:hover {
+  background: var(--coffee-accent);
+  border-color: var(--coffee-accent);
+  color: var(--coffee-dark);
+  transform: translateY(-3px);
+}
+
+/* ============================================
+   Footer Bottom
+   ============================================ */
+
+.footer-bottom {
+  padding: 0.9rem 0;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.footer-copyright {
+  font-size: 0.8rem;
+  color: var(--coffee-cream);
+  opacity: 0.6;
+  margin: 0;
+  letter-spacing: 0.05em;
+}
+
+.footer-links {
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.footer-links a {
+  font-size: 0.75rem;
+  opacity: 0.5;
+  letter-spacing: 0.05em;
+}
+
+.footer-links a:hover {
+  opacity: 1;
+  color: var(--coffee-accent);
+}
+
+/* Accessibility Focus States */
+.social-link:focus-visible,
+.footer-links a:focus-visible,
+.footer-section a:focus-visible,
+.footer-brand a:focus-visible {
+  outline: 2px solid var(--coffee-accent);
+  outline-offset: 3px;
+  border-radius: 10px;
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+/* Tablet: 2x2 */
+@media (max-width: 992px) {
+  .vv-footer .footer-main .container{
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .footer-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "visit hours"
+      "social subscribe";
+    gap: 2rem;
+  }
+
+  .footer-social .social-links { justify-content: center; }
+}
+
+/* Mobile: stacked */
+@media (max-width: 576px) {
+  .vv-footer .footer-main .container{
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .footer-main { padding: 3rem 0 1.5rem; }
+
+  .footer-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "visit"
+      "hours"
+      "social"
+      "subscribe";
+    text-align: center;
+    gap: 2.5rem;
+    padding: 2rem 1rem;
+  }
+
+  /* keep opening hours left even if the rest is centered */
+  .footer-hours-col { text-align: left; }
+  .footer-hours-col .footer-hours { align-items: flex-start; }
+
+  .social-links { justify-content: center; }
+
+  .footer-title { font-size: 1.5rem; }
+
+  .footer-links { flex-wrap: wrap; gap: 1rem; }
+}
+
+/* ============================================
+   Mailchimp Overrides (IMPORTANT)
+   ============================================ */
+
+.footer-subscribe,
+#mc_embed_shell { min-width: 0; }
+
+.footer-subscribe #mc_embed_signup {
+  background: transparent !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  clear: unset !important;
+  float: none !important;
+}
+
+.footer-subscribe #mc_embed_signup form {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.footer-subscribe .mc-field-group {
+  width: 100% !important;
+  max-width: 100% !important;
+  padding-bottom: 0.75rem !important;
+}
+
+.footer-subscribe input[type="email"],
+.footer-subscribe input[type="text"] {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 8px 10px !important;
+  border: 1px solid rgba(201, 169, 110, 0.4) !important;
+  border-radius: 4px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: var(--coffee-cream) !important;
+}
+
+.footer-subscribe input[type="email"]:focus,
+.footer-subscribe input[type="text"]:focus {
+  border-color: var(--coffee-accent) !important;
+  outline: none !important;
+}
+
+.footer-subscribe label {
+  color: var(--coffee-cream) !important;
+  opacity: 0.85 !important;
+  font-size: 0.9rem !important;
+}
+
+.footer-subscribe .indicates-required { display: none !important; }
+
+.footer-subscribe .button,
+.footer-subscribe input[type="submit"] {
+  background: var(--coffee-accent) !important;
+  color: var(--coffee-dark) !important;
+  border: none !important;
+  padding: 10px 20px !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+}
+
+.footer-subscribe .button:hover,
+.footer-subscribe input[type="submit"]:hover {
+  background: var(--coffee-light) !important;
+}

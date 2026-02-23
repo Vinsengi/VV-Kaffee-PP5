@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.humanize",
+    "django_extensions",
 
     "django.contrib.sites",        # required by allauth
     "allauth",
@@ -83,6 +84,7 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "cart.context_processors.cart_summary",
                 "versohnung_und_vergebung_kaffee.context_processors.staff_mode_context",
+                "versohnung_und_vergebung_kaffee.context_processors.canonical_url",
             ],
         },
     },
@@ -208,3 +210,5 @@ LOGGING = {
 
 # ── Default PK type ───────────────────────────────────────────────────────────
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+CANONICAL_BASE_URL = "https://vv-kaffee-5b7b3eb05052.herokuapp.com"

@@ -1,3 +1,4 @@
+from versohnung_und_vergebung_kaffee import settings
 from .staff_mode import get_staff_mode, staff_roles, is_worker
 
 
@@ -15,3 +16,8 @@ def staff_mode_context(request):
         "staff_role_labels": staff_roles(user) if worker_user else [],
         "worker_user": worker_user,
     }
+
+
+def canonical_url(request):
+    base = getattr(settings, "CANONICAL_BASE_URL", "").rstrip("/")
+    return {"canonical_url": f"{base}{request.path}"}
