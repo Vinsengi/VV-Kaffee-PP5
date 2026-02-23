@@ -1,5 +1,6 @@
 /* ============================================
    VV-Kaffee Custom Styles (FINAL)
+   Replace your whole vv-kaffee.css with this
    ============================================ */
 
 /* CSS Variables */
@@ -25,7 +26,7 @@ html, body {
   padding: 0;
 }
 
-/* footer sticks to bottom */
+/* Optional but recommended: makes footer sit nicely at bottom */
 body {
   font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   min-height: 100vh;
@@ -120,10 +121,6 @@ main { flex: 1; }
   color: var(--coffee-cream);
   position: relative;
   overflow: hidden;
-
-  /* IMPORTANT: prevents the “huge empty space” issue */
-  height: auto !important;
-  min-height: 0 !important;
 }
 
 .vv-footer::before {
@@ -149,21 +146,13 @@ main { flex: 1; }
   padding: 2rem 0 1rem;
   position: relative;
   z-index: 1;
-
-  /* IMPORTANT: also prevents big empty space */
-  height: auto !important;
-  min-height: 0 !important;
 }
 
-/* Make footer content wide on desktop; also override any accidental inline height */
+/* Optional: make footer content feel more like your "AI screenshot" */
 .vv-footer .footer-main .container {
-  max-width: 1400px;
+  max-width: 1400px;         /* wider than default container */
   padding-left: 50px;
   padding-right: 50px;
-
-  /* IMPORTANT: kills inline height:800px if it exists */
-  height: auto !important;
-  min-height: 0 !important;
 }
 
 /* Footer Brand */
@@ -205,6 +194,7 @@ main { flex: 1; }
 
 /* ============================================
    Footer Grid (DESKTOP)
+   Forces 4 columns + exact placement
    ============================================ */
 
 .footer-grid {
@@ -213,7 +203,6 @@ main { flex: 1; }
   grid-template-areas: "visit hours social subscribe";
   gap: 1.25rem;
   align-items: start;
-
   padding: 1.25rem 0;
   border-top: 1px solid rgba(201, 169, 110, 0.15);
   border-bottom: 1px solid rgba(201, 169, 110, 0.15);
@@ -221,7 +210,7 @@ main { flex: 1; }
 
 .footer-grid > * { min-width: 0; }
 
-/* these classes must exist on the 4 blocks in HTML */
+/* These classes must exist on the 4 blocks in HTML */
 .footer-visit { grid-area: visit; }
 .footer-hours-col { grid-area: hours; }
 .footer-social { grid-area: social; }
@@ -356,13 +345,8 @@ main { flex: 1; }
    Responsive Design
    ============================================ */
 
-/* Tablet: 2x2 */
+/* Tablet: 2x2 layout (social + subscribe stay same row) */
 @media (max-width: 992px) {
-  .vv-footer .footer-main .container{
-    padding-left: 24px;
-    padding-right: 24px;
-  }
-
   .footer-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-areas:
@@ -376,39 +360,27 @@ main { flex: 1; }
 
 /* Mobile: stacked */
 @media (max-width: 576px) {
-  .vv-footer .footer-main .container{
-    padding-left: 16px !important;
-    padding-right: 16px !important;
-  }
-
   .footer-main { padding: 3rem 0 1.5rem; }
 
   .footer-grid {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: 1fr;
     grid-template-areas:
       "visit"
       "hours"
       "social"
-      "subscribe" !important;
+      "subscribe";
     text-align: center;
     gap: 2.5rem;
     padding: 2rem 1rem;
   }
 
-  /* wrap long text like address/phone */
-  .vv-footer .footer-section,
-  .vv-footer .footer-section *{
-    overflow-wrap: anywhere;
-  }
-
-  /* Hours layout on mobile */
   .footer-hours { align-items: center; }
   .hours-row {
     grid-template-columns: auto auto;
     gap: 1rem;
     justify-content: center;
   }
-  .hours-row span:last-child { text-align: right; }
+  .hours-row span:last-child { text-align: left; }
 
   .social-links { justify-content: center; }
 
@@ -418,17 +390,12 @@ main { flex: 1; }
 }
 
 /* ============================================
-   Mailchimp Overrides
+   Mailchimp Overrides (IMPORTANT)
+   These must override classic-061523.css
    ============================================ */
 
 .footer-subscribe,
 #mc_embed_shell { min-width: 0; }
-
-/* Mailchimp sometimes applies clear:left / float */
-#mc_embed_shell{
-  clear: unset !important;
-  float: none !important;
-}
 
 .footer-subscribe #mc_embed_signup {
   background: transparent !important;
@@ -436,6 +403,8 @@ main { flex: 1; }
   max-width: 100% !important;
   padding: 0 !important;
   margin: 0 !important;
+
+  /* Mailchimp uses clear:left + floats in some themes */
   clear: unset !important;
   float: none !important;
 }
@@ -479,7 +448,7 @@ main { flex: 1; }
 
 .footer-subscribe .indicates-required { display: none !important; }
 
-/* submit button */
+/* If you later enable the submit button */
 .footer-subscribe .button,
 .footer-subscribe input[type="submit"] {
   background: var(--coffee-accent) !important;
@@ -495,4 +464,63 @@ main { flex: 1; }
 .footer-subscribe .button:hover,
 .footer-subscribe input[type="submit"]:hover {
   background: var(--coffee-light) !important;
+}
+
+/* =========================
+   Footer responsive stacking
+   Put this at the VERY END
+   ========================= */
+
+/* Reduce container padding on small screens (important) */
+@media (max-width: 576px) {
+  .vv-footer .footer-main .container{
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+}
+
+/* Tablet: 2 columns */
+@media (max-width: 992px) {
+  .vv-footer .footer-grid{
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    grid-template-areas:
+      "visit hours"
+      "social subscribe" !important;
+    gap: 1.5rem !important;
+  }
+}
+
+/* Mobile: 1 column (stack everything) */
+@media (max-width: 576px) {
+  .vv-footer .footer-grid{
+    grid-template-columns: 1fr !important;
+    grid-template-areas:
+      "visit"
+      "hours"
+      "social"
+      "subscribe" !important;
+    gap: 2rem !important;
+    text-align: left !important;
+  }
+
+  /* Make long address/phone wrap nicely */
+  .vv-footer .footer-section,
+  .vv-footer .footer-section *{
+    overflow-wrap: anywhere;
+  }
+
+  /* Hours row: prevent squashing */
+  .vv-footer .hours-row{
+    grid-template-columns: 1fr 1fr !important;
+    gap: .75rem !important;
+  }
+
+  .vv-footer .hours-row span:last-child{
+    text-align: right !important;
+  }
+
+  /* Social icons centered on mobile */
+  .vv-footer .footer-social .social-links{
+    justify-content: flex-start !important;
+  }
 }
