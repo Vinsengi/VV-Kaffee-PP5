@@ -1,0 +1,611 @@
+/* ============================================
+   VV-Kaffee Custom Styles
+   ============================================ */
+
+/* CSS Variables */
+:root {
+  --coffee-dark: #1a1714;
+  --coffee-medium: #2d2520;
+  --coffee-primary: #6F4E37;
+  --coffee-accent: #c9a96e;
+  --coffee-light: #f5f0e8;
+  --coffee-cream: #e8dfd3;
+  --transition-base: 0.3s ease;
+}
+
+/* ============================================
+   Layout & Structure
+   ============================================ */
+
+html {
+  scroll-behavior: smooth;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ============================================
+   Navigation
+   ============================================ */
+
+.navbar-brand span {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.navbar-dark .nav-link {
+  color: #fff;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.navbar-dark .nav-link:hover,
+.navbar-dark .nav-link:focus {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #ffd700;
+}
+
+.navbar-dark .nav-link.active-nav {
+  background-color: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ============================================
+   Buttons
+   ============================================ */
+
+.btn-link {
+  text-decoration: none;
+}
+
+.btn-link:hover {
+  text-decoration: underline;
+}
+
+.btn-coffee {
+  background: var(--coffee-primary);
+  color: #fff;
+  border: none;
+  transition: var(--transition-base);
+}
+
+.btn-coffee:hover,
+.btn-coffee:focus {
+  background: #5a3c24;
+  color: #fff;
+}
+
+.btn-outline-coffee {
+  border: 2px solid var(--coffee-primary);
+  color: var(--coffee-primary);
+  background: #fff;
+  transition: var(--transition-base);
+}
+
+.btn-outline-coffee:hover,
+.btn-outline-coffee:focus {
+  background: var(--coffee-primary);
+  color: #fff;
+}
+
+/* ============================================
+   Utilities
+   ============================================ */
+
+.text-coffee { color: var(--coffee-primary); }
+.border-coffee { border-color: var(--coffee-primary) !important; }
+
+/* ============================================
+   Alerts
+   ============================================ */
+
+.alert {
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+}
+
+/* ============================================
+   Footer
+   ============================================ */
+
+.vv-footer {
+  background: linear-gradient(180deg, var(--coffee-medium) 0%, var(--coffee-dark) 100%);
+  color: var(--coffee-cream);
+  position: relative;
+  overflow: hidden;
+  height: calc(70%);
+  max-height: calc(70%);
+  width: auto;
+}
+
+.vv-footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--coffee-accent), transparent);
+}
+
+/* Decorative coffee bean pattern */
+.footer-pattern {
+  position: absolute;
+  inset: 0;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cellipse cx='30' cy='30' rx='12' ry='18' fill='%23c9a96e' transform='rotate(25 30 30)'/%3E%3Cpath d='M30 15 Q30 30 30 45' stroke='%231a1714' stroke-width='2' fill='none'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+.footer-main {
+  padding: 2rem 0 1rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* Footer Brand */
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+}
+
+.footer-brand a {
+  display: inline-block;
+}
+
+.footer-brand a:hover .footer-logo {
+  box-shadow: 0 6px 20px rgba(201, 169, 110, 0.3);
+}
+
+.footer-logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 2px solid var(--coffee-accent);
+  padding: 4px;
+  margin-bottom: 0.5rem;
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  will-change: transform;
+}
+
+.footer-logo:hover {
+  transform: scale(1.05);
+}
+
+.footer-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: var(--coffee-light);
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.footer-tagline {
+  font-size: 0.85rem;
+  color: var(--coffee-accent);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-top: 0.25rem;
+}
+
+/* Footer Grid - 4 Columns */
+.vv-footer .footer-main .container .footer-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  grid-template-rows: auto !important;
+  gap: 1.25rem;
+  align-items: start;
+  width: 100%;
+  max-width: none;
+  margin: 0 auto;
+  padding: 1rem 0;
+  border-top: 1px solid rgba(201, 169, 110, 0.15);
+  border-bottom: 1px solid rgba(201, 169, 110, 0.15);
+}
+
+/* Force ALL direct children into single row */
+.vv-footer .footer-grid > * {
+  min-width: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  float: none !important;
+  clear: none !important;
+  display: block !important;
+}
+
+/* Explicit grid placement for each child */
+.vv-footer .footer-grid > .footer-section:nth-child(1) { 
+  grid-column: 1 !important; 
+  grid-row: 1 !important; 
+}
+.vv-footer .footer-grid > .footer-section:nth-child(2) { 
+  grid-column: 2 !important; 
+  grid-row: 1 !important; 
+}
+.vv-footer .footer-grid > .footer-section:nth-child(3) { 
+  grid-column: 3 !important; 
+  grid-row: 1 !important; 
+}
+.vv-footer .footer-grid > .footer-section:nth-child(4),
+.vv-footer .footer-grid > .footer-section.footer-subscribe,
+.vv-footer .footer-grid > .footer-section#mc_embed_shell,
+.vv-footer .footer-grid > #mc_embed_shell,
+.vv-footer .footer-grid > .footer-subscribe { 
+  grid-column: 4 !important; 
+  grid-row: 1 !important;
+  float: none !important;
+  clear: none !important;
+}
+
+/* Footer Section */
+.footer-section,
+div#mc_embed_shell {
+  min-width: 0;
+  height: auto;
+  display: block;
+  box-sizing: border-box;
+  float: none !important;
+  clear: none !important;
+}
+
+.footer-section h4 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--coffee-accent);
+  margin-bottom: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.footer-section p,
+.footer-section a {
+  font-size: 0.9rem;
+  color: var(--coffee-cream);
+  opacity: 0.85;
+  line-height: 1.8;
+  margin: 0;
+}
+
+.vv-footer a {
+  color: inherit;
+  text-decoration: none;
+  transition: all var(--transition-base);
+}
+
+.vv-footer a:hover {
+  color: var(--coffee-accent);
+  opacity: 1;
+}
+
+/* Address */
+.footer-address {
+  font-style: normal;
+}
+
+.footer-address .street,
+.footer-address .city {
+  display: block;
+}
+
+.footer-contact {
+  margin-top: 1rem;
+}
+
+.footer-contact i {
+  margin-right: 0.5rem;
+  font-size: 0.85rem;
+}
+
+/* Opening Hours */
+.footer-hours {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.hours-row {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 1rem;
+}
+
+.hours-time {
+  text-align: right;
+}
+
+/* Social Links */
+.social-links {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+.social-link {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid rgba(201, 169, 110, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--coffee-cream);
+  font-size: 1.1rem;
+  transition: all var(--transition-base);
+  will-change: transform;
+}
+
+.social-link:hover {
+  background: var(--coffee-accent);
+  border-color: var(--coffee-accent);
+  color: var(--coffee-dark);
+  transform: translateY(-3px);
+}
+
+.footer-subscribe {
+  display: block !important;
+  min-width: 0 !important;
+}
+
+/* Footer Bottom */
+.footer-bottom {
+  padding: 0.9rem 0;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.footer-copyright {
+  font-size: 0.8rem;
+  color: var(--coffee-cream);
+  opacity: 0.6;
+  margin: 0;
+  letter-spacing: 0.05em;
+}
+
+.footer-links {
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.footer-links a {
+  font-size: 0.75rem;
+  opacity: 0.5;
+  letter-spacing: 0.05em;
+}
+
+.footer-links a:hover {
+  opacity: 1;
+  color: var(--coffee-accent);
+}
+
+/* Accessibility Focus States */
+.social-link:focus-visible,
+.footer-links a:focus-visible,
+.footer-section a:focus-visible,
+.footer-brand a:focus-visible {
+  outline: 2px solid var(--coffee-accent);
+  outline-offset: 3px;
+  border-radius: 10px;
+}
+
+/* ============================================
+   Responsive Design
+   ============================================ */
+
+/* Tablet - 2x2 grid */
+@media (max-width: 993px) {
+  .footer-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 2rem;
+  }
+  
+  .footer-grid > *:nth-child(1) { grid-column: 1; grid-row: 1; }
+  .footer-grid > *:nth-child(2) { grid-column: 2; grid-row: 1; }
+  .footer-grid > *:nth-child(3) { grid-column: 1; grid-row: 2; }
+  .footer-grid > *:nth-child(4) { grid-column: 2; grid-row: 2; }
+  
+  .footer-grid > #mc_embed_shell,
+  .footer-grid > .footer-subscribe,
+  .footer-grid > div[id*="mc_embed"],
+  #mc_embed_shell {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+  }
+}
+
+/* Mobile - 1 column */
+@media (max-width: 576px) {
+  .footer-main {
+    padding: 3rem 0 1.5rem;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr !important;
+    text-align: center;
+    gap: 2.5rem;
+    padding: 2rem 1rem;
+  }
+  
+  .footer-grid > *:nth-child(1) { grid-column: 1; grid-row: 1; }
+  .footer-grid > *:nth-child(2) { grid-column: 1; grid-row: 2; }
+  .footer-grid > *:nth-child(3) { grid-column: 1; grid-row: 3; }
+  .footer-grid > *:nth-child(4) { grid-column: 1; grid-row: 4; }
+  
+  .footer-grid > #mc_embed_shell,
+  .footer-grid > .footer-subscribe,
+  .footer-grid > div[id*="mc_embed"],
+  #mc_embed_shell {
+    grid-column: 1 !important;
+    grid-row: 4 !important;
+  }
+
+  .footer-social {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .footer-section:last-child {
+    grid-column: auto;
+  }
+
+  .footer-hours {
+    align-items: center;
+  }
+
+  .hours-row {
+    grid-template-columns: auto auto;
+    gap: 1rem;
+    justify-content: center;
+  }
+
+  .hours-time {
+    text-align: left;
+  }
+
+  .social-links {
+    justify-content: center;
+  }
+
+  .footer-title {
+    font-size: 1.5rem;
+  }
+
+  .footer-links {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+}
+
+/* ============================================
+   Mailchimp Form Overrides
+   CRITICAL: These must override the Mailchimp embed CSS
+   ============================================ */
+
+/* Ultra-high specificity to override Mailchimp's clear:left */
+.vv-footer .footer-main .container .footer-grid .footer-section.footer-subscribe#mc_embed_shell,
+.vv-footer .footer-main .container .footer-grid #mc_embed_shell,
+.vv-footer .footer-main .container .footer-grid .footer-subscribe,
+.vv-footer .footer-grid > .footer-subscribe,
+.vv-footer .footer-grid > #mc_embed_shell,
+.vv-footer .footer-grid > .footer-section.footer-subscribe,
+.footer-section.footer-subscribe#mc_embed_shell,
+div.footer-section.footer-subscribe#mc_embed_shell,
+#mc_embed_shell {
+  clear: none !important;
+  float: none !important;
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  position: relative !important;
+  grid-column: 4 !important;
+  grid-row: 1 !important;
+}
+
+/* Override the inner signup div - THIS IS THE KEY */
+.vv-footer #mc_embed_signup,
+.footer-grid #mc_embed_signup,
+#mc_embed_shell #mc_embed_signup,
+.footer-subscribe #mc_embed_signup,
+div#mc_embed_shell div#mc_embed_signup,
+#mc_embed_signup {
+  background: transparent !important;
+  clear: none !important;
+  float: none !important;
+  font: 14px Helvetica, Arial, sans-serif;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+#mc_embed_signup form {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+}
+
+#mc_embed_signup .mc-field-group {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: auto !important;
+  padding-bottom: 0.75rem !important;
+}
+
+#mc_embed_signup input[type="email"],
+#mc_embed_signup input[type="text"] {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 8px 10px !important;
+  border: 1px solid rgba(201, 169, 110, 0.4) !important;
+  border-radius: 4px !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: var(--coffee-cream) !important;
+}
+
+#mc_embed_signup input[type="email"]:focus,
+#mc_embed_signup input[type="text"]:focus {
+  border-color: var(--coffee-accent) !important;
+  outline: none !important;
+}
+
+#mc_embed_signup label {
+  color: var(--coffee-cream) !important;
+  opacity: 0.85;
+  font-size: 0.9rem !important;
+}
+
+#mc_embed_signup .indicates-required { 
+  display: none !important; 
+}
+
+#mc_embed_signup_scroll > h2 { 
+  font-family: 'Cormorant Garamond', serif !important;
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  color: var(--coffee-accent) !important;
+  margin: 0 0 0.75rem 0 !important;
+  padding: 0 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+}
+
+/* Hide the submit button area gap */
+#mc_embed_signup .foot {
+  margin-top: 0.5rem !important;
+}
+
+#mc_embed_signup .button,
+#mc_embed_signup input[type="submit"] {
+  background: var(--coffee-accent) !important;
+  color: var(--coffee-dark) !important;
+  border: none !important;
+  padding: 10px 20px !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+}
+
+#mc_embed_signup .button:hover,
+#mc_embed_signup input[type="submit"]:hover {
+  background: var(--coffee-light) !important;
+}

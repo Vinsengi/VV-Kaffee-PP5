@@ -95,11 +95,11 @@ VV-Kaffee follows a **direct-to-consumer (D2C) online retail model**:
     - Login via **email or username**  
     - Profile management (address, phone, profile image)  
 - Fulfillment team dashboard (via group permissions)  
-        ![My Account](./static/images/readme_images/myaccount&recent%20_orders.png)
+        ![My Account](./static/images/readme_images/myaccount_fullfillment.png)
 - Profile image upload and display for user accounts  
         ![Profile Image Upload Screenshot](./static/images/readme_images/morkup-phone.png)
 - Account avatar shown in navigation and profile pages  
-        ![Account Avatar Screenshot](./static/images/readme_images/logedin_user_menu.png)
+        ![Account Avatar Screenshot](./static/images/readme_images/logedin_user_menu2.png)
 - 🛒 **Shop & Products**  
     - Categories, coffee details (origin, farm, variety, tasting notes)  
     - Stock tracking & grind selection  
@@ -152,6 +152,7 @@ VV-Kaffee follows a **direct-to-consumer (D2C) online retail model**:
 - 🏷️ **Discount codes**: Support for promotional codes and coupons
 - 🧾 **Invoice PDF generation**: Customers can download invoices for their orders
 - 🔐 **Advanced Admin Permissions**: Enable role-based access for fulfillment, support, and product management
+
 ## 🛠️ Django Admin (Customized)
 
 VV-Kaffee uses a **customized Django admin interface** for efficient management of products, orders, users, and reviews. The admin dashboard features:
@@ -196,8 +197,15 @@ This project sells ethically sourced coffee beans from Rwanda, delivering them f
 
 ---
 
-## 📂 Project Structure
+##  🏢 Project Structure
 
+### Data Schema
+#### 🗺️ER Diagram (ERD)
+
+![ER Diagram](docs/erd.png)
+![ER Diagram](docs/erd2.png)
+
+### 📂 File Structure
 ```bash
 vv-kaffee/
 │
@@ -628,6 +636,14 @@ On the **products page**, you’ll find:
 - Product names and pictures
 - “Add to cart” buttons, so you can order your favorite easily
 - Option to view details for every product, including origin, tasting notes, and more
+
+---
+## 🙂📖 Facebook Page
+![Facebook Page Screenshot](./static/images/readme_images/fbk_page.png)
+![Facebook Page Screenshot](./static/images/readme_images/fcbk_page2.png)
+![Facebook Page Screenshot](./static/images/readme_images/fcbk_page3.png)
+![Facebook Page Screenshot](./static/images/readme_images/fcbk_page4.png)
+![Facebook Page Screenshot](./static/images/readme_images/fcbk_page5.png)
 
 ---
 
