@@ -1,6 +1,5 @@
 /* ============================================
    VV-Kaffee Custom Styles (FINAL)
-   Replace your whole vv-kaffee.css with this
    ============================================ */
 
 /* CSS Variables */
@@ -26,7 +25,7 @@ html, body {
   padding: 0;
 }
 
-/* Optional but recommended: makes footer sit nicely at bottom */
+/* footer sticks to bottom */
 body {
   font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   min-height: 100vh;
@@ -150,9 +149,9 @@ main { flex: 1; }
   z-index: 1;
 }
 
-/* Optional: make footer content feel more like your "AI screenshot" */
+/* Optional: wider footer container on desktop */
 .vv-footer .footer-main .container {
-  max-width: 1400px;         /* wider than default container */
+  max-width: 1400px;
   padding-left: 50px;
   padding-right: 50px;
 }
@@ -195,8 +194,7 @@ main { flex: 1; }
 }
 
 /* ============================================
-   Footer Grid (DESKTOP)
-   Forces 4 columns + exact placement
+   Footer Grid (Desktop)
    ============================================ */
 
 .footer-grid {
@@ -257,16 +255,30 @@ main { flex: 1; }
 .footer-address .street,
 .footer-address .city { display: block; }
 
-/* Opening Hours */
-.footer-hours { display: flex; flex-direction: column; gap: 0.4rem; }
+/* ============================================
+   Opening Hours (force LEFT + no big gap)
+   ============================================ */
 
-.hours-row {
-  display: grid;
-  grid-template-columns: 90px auto;
-  gap: 0.5rem;
+.footer-hours-col { text-align: left; }
+
+.footer-hours-col .footer-hours {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  align-items: flex-start; /* <-- key: starts left */
 }
 
-.hours-row span:last-child { text-align: right; }
+.footer-hours-col .hours-row {
+  display: grid;
+  grid-template-columns: 90px max-content; /* <-- no stretchy 1fr */
+  column-gap: 0.75rem;
+  align-items: baseline;
+  justify-content: start;
+}
+
+.footer-hours-col .hours-row span:last-child {
+  text-align: left; /* keep it near the day */
+}
 
 /* Social Links */
 .social-links {
@@ -347,8 +359,13 @@ main { flex: 1; }
    Responsive Design
    ============================================ */
 
-/* Tablet: 2x2 layout (social + subscribe stay same row) */
+/* Tablet: 2x2 */
 @media (max-width: 992px) {
+  .vv-footer .footer-main .container{
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
   .footer-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-areas:
@@ -362,6 +379,11 @@ main { flex: 1; }
 
 /* Mobile: stacked */
 @media (max-width: 576px) {
+  .vv-footer .footer-main .container{
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
   .footer-main { padding: 3rem 0 1.5rem; }
 
   .footer-grid {
@@ -376,15 +398,9 @@ main { flex: 1; }
     padding: 2rem 1rem;
   }
 
-  .footer-hours { align-items: right; }
-  .hours-row {
-  display: grid;
-  grid-template-columns: 90px auto;
-  column-gap: .5rem;
-  
-  align-items: baseline;
-  }
-  .hours-row span:last-child { text-align: right; }
+  /* keep opening hours left even if the rest is centered */
+  .footer-hours-col { text-align: left; }
+  .footer-hours-col .footer-hours { align-items: flex-start; }
 
   .social-links { justify-content: center; }
 
@@ -395,7 +411,6 @@ main { flex: 1; }
 
 /* ============================================
    Mailchimp Overrides (IMPORTANT)
-   These must override classic-061523.css
    ============================================ */
 
 .footer-subscribe,
@@ -407,8 +422,6 @@ main { flex: 1; }
   max-width: 100% !important;
   padding: 0 !important;
   margin: 0 !important;
-
-  /* Mailchimp uses clear:left + floats in some themes */
   clear: unset !important;
   float: none !important;
 }
@@ -452,7 +465,6 @@ main { flex: 1; }
 
 .footer-subscribe .indicates-required { display: none !important; }
 
-/* If you later enable the submit button */
 .footer-subscribe .button,
 .footer-subscribe input[type="submit"] {
   background: var(--coffee-accent) !important;
@@ -468,63 +480,4 @@ main { flex: 1; }
 .footer-subscribe .button:hover,
 .footer-subscribe input[type="submit"]:hover {
   background: var(--coffee-light) !important;
-}
-
-/* =========================
-   Footer responsive stacking
-   Put this at the VERY END
-   ========================= */
-
-/* Reduce container padding on small screens (important) */
-@media (max-width: 576px) {
-  .vv-footer .footer-main .container{
-    padding-left: 16px !important;
-    padding-right: 16px !important;
-  }
-}
-
-/* Tablet: 2 columns */
-@media (max-width: 992px) {
-  .vv-footer .footer-grid{
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    grid-template-areas:
-      "visit hours"
-      "social subscribe" !important;
-    gap: 1.5rem !important;
-  }
-}
-
-/* Mobile: 1 column (stack everything) */
-@media (max-width: 576px) {
-  .vv-footer .footer-grid{
-    grid-template-columns: 1fr !important;
-    grid-template-areas:
-      "visit"
-      "hours"
-      "social"
-      "subscribe" !important;
-    gap: 2rem !important;
-    text-align: left !important;
-  }
-
-  /* Make long address/phone wrap nicely */
-  .vv-footer .footer-section,
-  .vv-footer .footer-section *{
-    overflow-wrap: anywhere;
-  }
-
-  /* Hours row: prevent squashing */
-  .vv-footer .hours-row{
-    grid-template-columns: 1fr 1fr !important;
-    gap: .5rem !important;
-  }
-
-  .vv-footer .hours-row span:last-child{
-    text-align: right !important;
-  }
-
-  /* Social icons centered on mobile */
-  .vv-footer .footer-social .social-links{
-    justify-content: flex-start !important;
-  }
 }
