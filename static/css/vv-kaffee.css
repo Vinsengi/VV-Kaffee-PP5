@@ -376,7 +376,7 @@ main { flex: 1; }
     padding: 2rem 1rem;
   }
 
-  .footer-hours { align-items: center; }
+  .footer-hours { align-items: right; }
   .hours-row {
   display: grid;
   grid-template-columns: 90px auto;
