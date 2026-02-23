@@ -639,6 +639,8 @@ On the **products page**, you’ll find:
 
 ---
 ## 🙂📖 Facebook Page
+
+For marketing strategy purposes, a facebook page has been added to reach out to our potential customers who use facebook. the page will keep improving.
 ![Facebook Page Screenshot](./static/images/readme_images/fbk_page.png)
 ![Facebook Page Screenshot](./static/images/readme_images/fcbk_page2.png)
 ![Facebook Page Screenshot](./static/images/readme_images/fcbk_page3.png)
