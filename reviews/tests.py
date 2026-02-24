@@ -67,7 +67,7 @@ class ProductReviewIntegrationTests(TestCase):
         self.assertContains(response, "Reviews")
         self.assertContains(response, "Great cup")
         self.assertContains(response, "Tasty notes")
-        self.assertContains(response, "★")
+        self.assertContains(response, "&#9733;")
 
     def test_authenticated_buyer_can_submit_review(self):
         self.client.login(username="alice", password="pass1234")

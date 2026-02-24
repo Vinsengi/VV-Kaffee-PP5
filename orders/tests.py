@@ -1,9 +1,11 @@
-<<<<<<< ours
 from decimal import Decimal
 from unittest.mock import patch
 
+from django.contrib.auth.models import User
+from django.contrib.staticfiles import storage as static_storage
+from django.contrib.staticfiles.storage import StaticFilesStorage
 from django.core import mail
-from django.test import TestCase, override_settings
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
 from orders.models import Order, OrderItem
@@ -105,15 +107,6 @@ class PaidEmailFlowTests(TestCase):
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].to, ["customer@example.com"])
-=======
-from django.contrib.auth.models import User
-from django.contrib.staticfiles import storage as static_storage
-from django.contrib.staticfiles.storage import StaticFilesStorage
-from django.test import Client, TestCase, override_settings
-from django.urls import reverse
-
-from products.models import Product
-from .models import Order, OrderItem
 
 
 @override_settings(STATICFILES_STORAGE="django.contrib.staticfiles.storage.StaticFilesStorage")
@@ -180,4 +173,3 @@ class StaffOrderViewTests(TestCase):
         self.order.refresh_from_db()
         self.assertEqual(self.order.status, "fulfilled")
         self.assertIsNotNone(self.order.fulfilled_at)
->>>>>>> theirs
